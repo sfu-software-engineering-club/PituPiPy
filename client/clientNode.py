@@ -3,6 +3,7 @@ import threading
 
 
 class Connection(threading.Thread):
+    # Client connection per peer
     pass
 
 
