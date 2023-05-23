@@ -32,9 +32,6 @@ class Tracker:
 
         self.cli()
 
-    def create_new_connection(self):
-        pass
-
     def print_help(self):
         def pad(str):
             return str.ljust(20)
