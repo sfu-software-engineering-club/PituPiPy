@@ -2,10 +2,6 @@ import socket
 import threading
 
 
-class Connection(threading.Thread):
-    pass
-
-
 class TrackerNode(threading.Thread):
     def __init__(self, node_socket, ip, port):
         super(TrackerNode, self).__init__()

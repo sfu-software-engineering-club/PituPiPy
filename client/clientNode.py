@@ -2,6 +2,10 @@ import socket
 import threading
 
 
+class Connection(threading.Thread):
+    pass
+
+
 class ClientNode(threading.Thread):
     def __init__(self, node_socket, ip, port, file_port):
         super(ClientNode, self).__init__()
