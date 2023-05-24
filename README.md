@@ -7,6 +7,8 @@ or for Mac
 to start working in a virtual environment,  
 `pipenv shell`  
 
+Formatting  
+`black [FILE_PATH]`
 
 tracker startup command:  
 `
