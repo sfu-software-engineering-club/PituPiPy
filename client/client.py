@@ -54,8 +54,8 @@ class Client:
             peer_list = self.request_tracker_list_of_peers()
 
             self.node.clear_connection()
-            for peer_id, peer_ip in peer_list:
-                self.node.create_new_connection(peer_id, peer_ip)
+            for peer_id, peer_ip, peer_port in peer_list:
+                self.node.create_new_connection(peer_id, peer_ip, peer_port)
 
         except Exception as e:
             print(
