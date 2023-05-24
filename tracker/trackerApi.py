@@ -4,7 +4,7 @@ import uuid
 
 
 class ClientConnection(threading.Thread):
-    def __init__(self, client_socket, ip_addr):
+    def __init__(self, tracker_api, client_socket, ip_addr):
         super(ClientConnection, self).__init__()
 
         self.client_socket = client_socket
@@ -30,7 +30,7 @@ class ClientConnection(threading.Thread):
 
                 if key == "LIST_PEERS":
                     data = self.list_peers()
-                    self.send_message_to_client(data)
+                    # self.send_message_to_client(data)
 
             except Exception as e:
                 print("Error occurred: ", e)
@@ -46,7 +46,7 @@ class TrackerApi:
         self.client_list = []
 
     def create_new_client_connection(self, client_socket, ip_addr):
-        client_connection = ClientConnection(client_socket, ip_addr)
+        client_connection = ClientConnection(self, client_socket, ip_addr)
         client_connection.daemon = True
         client_connection.start()
         return client_connection
