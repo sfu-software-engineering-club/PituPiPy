@@ -2,6 +2,7 @@ import sys
 import getopt
 import socket
 from clientNode import ClientNode
+from cli import CLI
 
 
 class Client:
@@ -14,7 +15,7 @@ class Client:
         self.port = port
         self.file_port = file_port
 
-        self.socket = None
+        self.tracker_socket = None
         self.node = None
 
     def start(self):
@@ -25,33 +26,73 @@ class Client:
         print("HOST: {}".format(self.ip))
         print("PORT: {}".format(self.port))
         print("FILE_TRANSFER_PORT: {}\n\n".format(self.file_port))
+        print("TRACKER_IP: {}".format(self.tracker_ip))
+        print("TRACKER_PORT: {}".format(self.tracker_port))
 
-        self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-        self.socket.bind((self.ip, self.port))
-        self.socket.listen()
+        self.cli = CLI(self)
+        self.cli.cli()
 
-        self.node = ClientNode(self.socket, self.ip, self.port, self.file_port)
-        self.node.daemon = True
-        self.node.start()
+    def check_tracker_connectivity(self):
+        if self.tracker_socket is None:
+            raise Exception("Error: client is not connected to network")
 
-        self.cli()
+    def connect_to_tracker(self):
+        if self.tracker_socket is not None:
+            self.tracker_socket.close()
+        try:
+            print("\nConnecting to Network Tracker...")
+            self.tracker_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            self.tracker_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+            self.tracker_socket.connect((self.tracker_ip, self.tracker_port))
 
-    def request_connection_to_network(self):
-        # send connection request to network tracker
-        pass
+            # Receive ACK from tracker with assigned client id
+            ack = self.tracker_socket.recv(1024)
+            my_client_id = repr(ack.decode())
+            self.node = ClientNode(my_client_id, self.ip, self.port, self.file_port)
+            print("Connected. [client id: {}]".format(my_client_id))
 
-    def request_to_exit_network(self):
-        # send connection removal request to network tracker
-        pass
+            peer_list = self.request_tracker_list_of_peers()
 
-    def query_list_of_peers_to_tracker(self):
-        # request connected peer information to tracker
-        pass
+            self.node.clear_connection()
+            for peer_id, peer_ip in peer_list:
+                self.node.create_new_connection(peer_id, peer_ip)
 
-    def send_message_to_network(self):
-        # send chat message to network
-        pass
+        except Exception as e:
+            print(
+                "Error: Could not connect to tracker ({}:{})".format(
+                    self.tracker_ip, self.tracker_port
+                )
+            )
+            print(e)
+
+    def request_tracker_list_of_peers(self):
+        """
+        send a request message to tracker to retrieve list of peers, and return it
+
+        :return: List<id, ip_addr>
+        """
+        self.check_tracker_connectivity()
+
+        print("\nRequest list of peers in network to tracker")
+        self.tracker_socket.send("LIST_PEERS: ".encode())
+        # TODO: receive list of peers from tracker
+        return []
+
+    def request_tracker_exit_network(self):
+        """
+        send a request message to tracker to exit the network
+
+        :return: Boolean
+        """
+        self.check_tracker_connectivity()
+        # TODO
+        return False
+
+    def send_message_to_network(self, message):
+        if self.node is None:
+            raise Exception("Error: client is not connected to network")
+
+        self.node.broadcast_message(message)
 
     def print_help(self):
         def pad(str):
@@ -59,45 +100,18 @@ class Client:
 
         print("\n")
         print(pad("  Options"))
-        print(pad("/connect"), "--", "connect to network")
-        print(pad("/list_peers"), "--", "list all the peer IPs in the network")
-        print(pad("/send_message"), "--", "send a message to network")
+        print(pad("/connect"), "--", "connect to tracker")
+        print(pad("/status"), "--", "show the current network connection status")
+        print(pad("/send_message [message]"), "--", "send a message to network")
         print(pad("/exit"), "--", "exit from network")
         print(pad("/shutdown"), "--", "terminate the client")
 
-    def shutdown():
-        # send connection removal request to network tracker and shutdown the instance
-        # self.request_to_exit_network()
-        pass
-
-    def cli(self):
-        COMMAND_PROMPT = "\nCOMMAND? [/q or /shutdown] >> /"
-        self.print_help()
-        while True:
-            print("\n")
-            print(COMMAND_PROMPT, end="")
-            cmd = str(input())
-
-            if cmd == "help":
-                self.print_help()
-
-            elif cmd == "connect":
-                pass
-
-            elif cmd == "list_peers":
-                pass
-
-            elif cmd == "send_message":
-                pass
-
-            elif cmd == "exit":
-                pass
-
-            elif cmd == "/q" or cmd == "shutdown":
-                self.shutdown()
-
-            else:
-                print("Error: unknown command: {}".format(cmd))
+    def shutdown(self):
+        self.request_tracker_exit_network()
+        self.node.shutdown()
+        if self.tracker_socket is not None:
+            self.tracker_socket.close()
+        sys.exit()
 
 
 if __name__ == "__main__":
@@ -105,7 +119,6 @@ if __name__ == "__main__":
     opts, args = getopt.getopt(
         argv, "h", ["client_port=", "client_file_port=", "tracker_ip=", "tracker_port="]
     )
-
     tracker_ip = None
     tracker_port = None
     port = None
@@ -119,7 +132,7 @@ if __name__ == "__main__":
             print(pad("--tracker_ip"), "tracker ip address")
             print(pad("--tracker_port"), "tracker port number")
             print(pad("--client_port"), "set client port")
-            print(pad("-f"), "set client file transfer port")
+            print(pad("--client_file_port"), "set client file transfer port")
             print(
                 "e.g. python client.py --client_port=3000 --client_file_port=3001 --tracker_ip=127.0.0.1 --tracker_port=2500"
             )

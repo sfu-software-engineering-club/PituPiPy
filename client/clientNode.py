@@ -3,20 +3,33 @@ import threading
 
 
 class Connection(threading.Thread):
-    # Client connection per peer
-    pass
+    def __init__(self, socket):
+        super(Connection, self).__init__()
+        self.socket = socket
+
+    def run(self):
+        while True:
+            data = self.socket.recv(1024)
+            print("receive: ", repr(data.decode()))
 
 
-class ClientNode(threading.Thread):
-    def __init__(self, node_socket, ip, port, file_port):
-        super(ClientNode, self).__init__()
-
-        self.node_socket = node_socket
+class ClientNode:
+    def __init__(self, client_id, ip, port, file_port):
+        self.client_id = client_id
         self.ip = ip
         self.port = port
         self.file_port = file_port
 
-    def run(self):
-        print("client node running")
-        # while True:
+        self.connection_list = []
+
+    def broadcast_message(self, message):
+        pass
+
+    def create_new_connection(self, id, ipAddr):
+        pass
+
+    def clear_connection(self):
+        pass
+
+    def shutdown(self):
         pass
