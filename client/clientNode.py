@@ -3,8 +3,9 @@ import threading
 
 
 class Connection(threading.Thread):
-    def __init__(self, socket):
+    def __init__(self, opponent_client_id, socket):
         super(Connection, self).__init__()
+        self.opponent_client_id = opponent_client_id
         self.socket = socket
 
     def run(self):
