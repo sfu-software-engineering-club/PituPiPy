@@ -26,7 +26,7 @@ class ClientNode:
     def broadcast_message(self, message):
         pass
 
-    def create_new_connection(self, id, ipAddr):
+    def create_new_connection(self, id, ip_addr):
         pass
 
     def clear_connection(self):
