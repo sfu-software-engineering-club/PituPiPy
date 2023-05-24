@@ -49,13 +49,15 @@ class Client:
             ack = self.tracker_socket.recv(1024)
             my_client_id = repr(ack.decode())
             self.node = ClientNode(my_client_id, self.ip, self.port, self.file_port)
+            self.node.daemon = True
+            self.node.start()
             print("Connected. [client id: {}]".format(my_client_id))
 
             peer_list = self.request_tracker_list_of_peers()
 
             self.node.clear_connection()
             for peer_id, peer_ip, peer_port in peer_list:
-                self.node.create_new_connection(peer_id, peer_ip, peer_port)
+                self.node.connect(peer_id, peer_ip, peer_port)
 
         except Exception as e:
             print(

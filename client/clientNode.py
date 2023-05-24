@@ -5,6 +5,7 @@ import threading
 class Connection(threading.Thread):
     def __init__(self, opponent_client_id, socket):
         super(Connection, self).__init__()
+
         self.opponent_client_id = opponent_client_id
         self.socket = socket
 
@@ -14,8 +15,10 @@ class Connection(threading.Thread):
             print("receive: ", repr(data.decode()))
 
 
-class ClientNode:
+class ClientNode(threading.Thread):
     def __init__(self, client_id, ip, port, file_port):
+        super(ClientNode, self).__init__()
+
         self.client_id = client_id
         self.ip = ip
         self.port = port
@@ -26,7 +29,7 @@ class ClientNode:
     def broadcast_message(self, message):
         pass
 
-    def create_new_connection(self, id, ip_addr, port):
+    def connect(self, id, ip_addr, port):
         pass
 
     def clear_connection(self):
@@ -34,3 +37,7 @@ class ClientNode:
 
     def shutdown(self):
         pass
+
+    def run(self):
+        while True:
+            pass
