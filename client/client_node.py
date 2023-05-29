@@ -29,6 +29,11 @@ class ClientNode(threading.Thread):
     def broadcast_message(self, message):
         pass
 
+    def connect_to_peers(self, peer_list):
+        self.node.clear_connection()
+        for peer_id, peer_ip, peer_port in peer_list:
+            self.node.connect(peer_id, peer_ip, peer_port)
+
     def connect(self, id, ip_addr, port):
         pass
 

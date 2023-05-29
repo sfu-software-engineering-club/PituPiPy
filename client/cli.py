@@ -23,9 +23,10 @@ class CLI:
                         print("[ID: {}] {}".format(id, ipAddr))
 
                 elif cmd == "send_message":
+                    if self.node is None:
+                        raise Exception("Error: client is not connected to network")
+                    self.client.node.broadcast_message("")
                     # TODO
-                    # print("sending message: [{}]".format(message))
-                    # self.client.send_message_to_network(message)
                     pass
 
                 elif cmd == "exit":

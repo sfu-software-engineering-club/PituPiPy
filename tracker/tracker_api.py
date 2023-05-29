@@ -11,14 +11,18 @@ class ClientConnection(threading.Thread):
         self.client_ip_addr = ip_addr
         self.client_id = str(uuid.uuid4())
 
-        # Send back ACK with generated Client ID
+        self.send_ack()
+
+    def send_ack(self):
+        """Send ACK message containing Client UUID"""
         self.client_socket.send(self.client_id.encode())
 
-    def list_peers(self):
-        return ""
-
-    def send_message_to_client(self, message):
+    def send_message(self, message):
+        """Send a message to client"""
         self.client_socket.send(message.encode())
+
+    def send_peer_list(self):
+        return ""
 
     def run(self):
         while True:
@@ -29,7 +33,7 @@ class ClientConnection(threading.Thread):
                 key, value = received.split(":")
 
                 if key == "LIST_PEERS":
-                    data = self.list_peers()
+                    data = self.send_peer_list()
                     # self.send_message_to_client(data)
 
             except Exception as e:
@@ -38,10 +42,10 @@ class ClientConnection(threading.Thread):
 
 class TrackerApi:
     def __init__(self, ip, port):
-        self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-        self.socket.bind((ip, port))
-        self.socket.listen()
+        self.recv_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.recv_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        self.recv_socket.bind((ip, port))
+        self.recv_socket.listen()
 
         self.client_list = []
 
@@ -54,7 +58,7 @@ class TrackerApi:
     def start(self):
         print("\nTracker API Listening")
         while True:
-            client_socket, ip_addr = self.socket.accept()
+            client_socket, ip_addr = self.recv_socket.accept()
 
             print("\nNew connection request received: ", ip_addr)
             connection = self.create_new_client_connection(client_socket, ip_addr)
