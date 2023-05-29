@@ -23,10 +23,9 @@ class CLI:
                         print("[ID: {}] {}".format(id, ipAddr))
 
                 elif cmd == "send_message":
-                    # TODO
-                    # print("sending message: [{}]".format(message))
-                    # self.client.send_message_to_network(message)
-                    pass
+                    message = cmd.split(" ", 1)[1]
+                    print("sending message: [{}]".format(message))
+                    self.client.send_message_to_network(message)
 
                 elif cmd == "exit":
                     success = self.client.request_tracker_exit_network()
