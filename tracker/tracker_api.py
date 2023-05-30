@@ -7,6 +7,8 @@ class ClientConnection(threading.Thread):
     def __init__(self, tracker_api, client_socket, ip_addr):
         super(ClientConnection, self).__init__()
 
+        self.api = tracker_api
+
         self.client_socket = client_socket
         self.client_ip_addr = ip_addr
         self.client_id = str(uuid.uuid4())
