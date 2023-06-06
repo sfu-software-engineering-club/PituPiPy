@@ -1,14 +1,22 @@
 class CLI:
+    COMMAND_PROMPT = "\nCOMMAND? [/q or /shutdown] >> /"
+
     def __init__(self, client):
         self.client = client
 
     def cli(self):
-        COMMAND_PROMPT = "\nCOMMAND? [/q or /shutdown] >> /"
         self.client.print_help()
         while True:
             print("\n")
-            print(COMMAND_PROMPT, end="")
-            cmd = str(input())
+            print(self.COMMAND_PROMPT, end="")
+            cmd = input()
+            message = ""
+
+            if len(cmd.split(" ", 1)) > 1:
+                cmd, message = cmd.split(" ", 1)
+                message = message.strip('"')
+            else:
+                cmd = cmd.strip()
 
             try:
                 if cmd == "help":
@@ -23,9 +31,14 @@ class CLI:
                         print("[ID: {}] {}".format(id, ipAddr))
 
                 elif cmd == "send_message":
-                    message = cmd.split(" ", 1)[1]
-                    print("sending message: [{}]".format(message))
-                    self.client.send_message_to_network(message)
+                    if self.client.node is None:
+                        raise Exception(
+                            "Error: client is not connected to network")
+                    elif message == "":
+                        print("No message provided")
+                    else:
+                        print("Sending message: [{}]".format(message))
+                        self.client.node.broadcast_message(message)
 
                 elif cmd == "exit":
                     success = self.client.request_tracker_exit_network()

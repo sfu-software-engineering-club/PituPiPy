@@ -1,7 +1,7 @@
 import sys
 import getopt
 import socket
-from clientNode import ClientNode
+from client_node import ClientNode
 from cli import CLI
 
 
@@ -54,10 +54,7 @@ class Client:
             print("Connected. [client id: {}]".format(my_client_id))
 
             peer_list = self.request_tracker_list_of_peers()
-
-            self.node.clear_connection()
-            for peer_id, peer_ip, peer_port in peer_list:
-                self.node.connect(peer_id, peer_ip, peer_port)
+            self.node.connect_to_peers(peer_list)
 
         except Exception as e:
             print(
@@ -89,12 +86,6 @@ class Client:
         self.check_tracker_connectivity()
         # TODO
         return False
-
-    def send_message_to_network(self, message):
-        if self.node is None:
-            raise Exception("Error: client is not connected to network")
-
-        self.node.broadcast_message(message)
 
     def print_help(self):
         def pad(str):

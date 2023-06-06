@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "e56f6f23a6b8e6cafef763247826eea18e9bde0a175bcc48db69e21b0db2f58c"
+            "sha256": "b70cdf5cb3e8643910c84ebbc38019d11c8c12875adcd805efbe6d0d8fc8e36f"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -71,14 +71,6 @@
             "markers": "python_version >= '3.7'",
             "version": "==8.1.3"
         },
-        "colorama": {
-            "hashes": [
-                "sha256:08695f5cb7ed6e0531a20572697297273c47b8cae5a63ffc6d6ed5c201be6e44",
-                "sha256:4f1d9991f5acc0ca119f9d443620b77f9d6b33703e51011c16baf57afb285fc6"
-            ],
-            "markers": "sys_platform == 'win32'",
-            "version": "==0.4.6"
-        },
         "dill": {
             "hashes": [
                 "sha256:a07ffd2351b8c678dfc4a856a3005f8067aea51d6ba6c700796a4d9e280f39f0",
@@ -93,6 +85,14 @@
                 "sha256:f35c4b692542ca110de7ef0bea44d73981caeb34ca0b9b6b2e6d7790dda8f80e"
             ],
             "version": "==0.3.6"
+        },
+        "exceptiongroup": {
+            "hashes": [
+                "sha256:232c37c63e4f682982c8b6459f33a8981039e5fb8756b2074364e5055c498c9e",
+                "sha256:d484c3090ba2889ae2928419117447a14daf3c1231d5e30d0aae34f354f01785"
+            ],
+            "markers": "python_version < '3.11'",
+            "version": "==1.1.1"
         },
         "filelock": {
             "hashes": [
@@ -109,6 +109,14 @@
             ],
             "markers": "python_version >= '3.7'",
             "version": "==2.5.24"
+        },
+        "iniconfig": {
+            "hashes": [
+                "sha256:2d91e135bf72d31a410b17c16da610a82cb55f6b0477d1a902134b24a455b8b3",
+                "sha256:b6a85871a79d2e3b22d2d1b94ac2824226a63c6b741c88f7ae975f18b6778374"
+            ],
+            "markers": "python_version >= '3.7'",
+            "version": "==2.0.0"
         },
         "isort": {
             "hashes": [
@@ -168,6 +176,14 @@
             "markers": "python_version >= '3.6'",
             "version": "==0.7.0"
         },
+        "mock": {
+            "hashes": [
+                "sha256:06f18d7d65b44428202b145a9a36e99c2ee00d1eb992df0caf881d4664377891",
+                "sha256:0e0bc5ba78b8db3667ad636d964eb963dc97a59f04c6f6214c5f0e4a8f726c56"
+            ],
+            "index": "pypi",
+            "version": "==5.0.2"
+        },
         "mypy-extensions": {
             "hashes": [
                 "sha256:4392f6c0eb8a5668a69e23d168ffa70f0be9ccfd32b5cc2d26a34ae5b844552d",
@@ -208,6 +224,14 @@
             "markers": "python_version >= '3.7'",
             "version": "==3.5.1"
         },
+        "pluggy": {
+            "hashes": [
+                "sha256:4224373bacce55f955a878bf9cfa763c1e360858e330072059e10bad68531159",
+                "sha256:74134bbf457f031a36d68416e1509f34bd5ccc019f0bcc952c7b909d06b37bd3"
+            ],
+            "markers": "python_version >= '3.6'",
+            "version": "==1.0.0"
+        },
         "pre-commit": {
             "hashes": [
                 "sha256:66e37bec2d882de1f17f88075047ef8962581f83c234ac08da21a0c58953d1f0",
@@ -218,11 +242,19 @@
         },
         "pylint": {
             "hashes": [
-                "sha256:eb035800b371862e783f27067b3fc00c6b726880cacfed101b619f366bb813f6",
-                "sha256:f0b0857f6fba90527a30f39937a9f66858b59c5dcbb8c062821ad665637bb742"
+                "sha256:5dcf1d9e19f41f38e4e85d10f511e5b9c35e1aa74251bf95cdd8cb23584e2db1",
+                "sha256:7a1145fb08c251bdb5cca11739722ce64a63db479283d10ce718b2460e54123c"
             ],
             "index": "pypi",
-            "version": "==3.0.0a6"
+            "version": "==2.17.4"
+        },
+        "pytest": {
+            "hashes": [
+                "sha256:3799fa815351fea3a5e96ac7e503a96fa51cc9942c3753cda7651b93c1cfa362",
+                "sha256:434afafd78b1d78ed0addf160ad2b77a30d35d4bdf8af234fe621919d9ed15e3"
+            ],
+            "index": "pypi",
+            "version": "==7.3.1"
         },
         "pyyaml": {
             "hashes": [
