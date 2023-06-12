@@ -3,7 +3,7 @@ import getopt
 import socket
 from client_node import ClientNode
 from cli import CLI
-
+import json
 
 class Client:
     def __init__(self, tracker_ip, tracker_port, port, file_port):
@@ -54,7 +54,8 @@ class Client:
             print("Connected. [client id: {}]".format(my_client_id))
 
             peer_list = self.request_tracker_list_of_peers()
-            self.node.connect_to_peers(peer_list)
+            print("peer list: ", peer_list)
+            #self.node.connect_to_peers(peer_list)
 
         except Exception as e:
             print(
@@ -69,13 +70,21 @@ class Client:
         send a request message to tracker to retrieve list of peers, and return it
 
         :return: List<id, ip_addr>
+
         """
         self.check_tracker_connectivity()
 
         print("\nRequest list of peers in network to tracker")
         self.tracker_socket.send("LIST_PEERS: ".encode())
         # TODO: receive list of peers from tracker
-        return []
+        data = self.tracker_socket.recv(1024)
+        data = data.decode('utf-8')
+        data = json.loads(data)
+        peer_list = []
+        for i in data:
+            if i['id'] != self.node.client_id.strip("'"):
+                peer_list.append([i['id'], i['ip'], i['port']])
+        return peer_list
 
     def request_tracker_exit_network(self):
         """
