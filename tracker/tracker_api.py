@@ -1,6 +1,7 @@
 import socket
 import threading
 import uuid
+import json
 
 
 class ClientConnection(threading.Thread):
@@ -24,7 +25,12 @@ class ClientConnection(threading.Thread):
         self.client_socket.send(message.encode())
 
     def send_peer_list(self):
-        return ""
+        peer_list = []
+        for i in self.api.client_list:
+            client = {'id': i.client_id, 'ip': i.client_ip_addr[0], 'port': i.client_ip_addr[1]}
+            peer_list.append(client)
+        data = json.dumps(peer_list)
+        return data
 
     def run(self):
         while True:
@@ -36,7 +42,7 @@ class ClientConnection(threading.Thread):
 
                 if key == "LIST_PEERS":
                     data = self.send_peer_list()
-                    # self.send_message_to_client(data)
+                    self.send_message(data)
 
             except Exception as e:
                 print("Error occurred: ", e)
