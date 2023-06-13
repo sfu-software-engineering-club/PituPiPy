@@ -14,7 +14,6 @@ class CLI:
 
             if len(cmd.split(" ", 1)) > 1:
                 cmd, message = cmd.split(" ", 1)
-                message = message.strip('"')
             else:
                 cmd = cmd.strip()
 
@@ -32,8 +31,7 @@ class CLI:
 
                 elif cmd == "send_message":
                     if self.client.node is None:
-                        raise Exception(
-                            "Error: client is not connected to network")
+                        raise Exception("Error: client is not connected to network")
                     elif message == "":
                         print("No message provided")
                     else:
