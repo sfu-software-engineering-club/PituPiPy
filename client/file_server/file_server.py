@@ -10,7 +10,7 @@ class ServerMode(enum):
 class File:
     def __init__(self):
         self.identifier = None
-        self.file_path = ""
+        self.filepath = ""
         self.file_size = 0
         self.number_of_chunks = 0
 
@@ -27,7 +27,7 @@ class FileServer:
             pass
 
     def request_file(
-        self, file_destination_path, sender_ip_addr, sender_port, chunk_start, chunk_end
+        self, destination_filepath, sender_ip_addr, sender_port, chunk_start, chunk_end
     ):
         pass
 
