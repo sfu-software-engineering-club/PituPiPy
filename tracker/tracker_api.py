@@ -72,3 +72,27 @@ class TrackerApi:
             connection = self.create_new_client_connection(client_socket, ip_addr)
             self.client_list.append(connection)
             print("Network participants: ", len(self.client_list))
+
+
+    # Unit Test
+    @pytest.fixture
+    def mock_client_connection(monkeypatch):
+        mock_connection = MagicMock(spec=ClientConnection)
+        mock_connection.start = MagicMock()
+        monkeypatch.setattr("ClientConnection", MagicMock(return_value=mock_connection))
+        return mock_connection
+
+    def test_tracker_api_start(mock_client_connection):
+        tracker_api = TrackerApi("127.0.0.1", 8080)
+        tracker_api.create_new_client_connection = MagicMock(return_value=mock_client_connection)
+
+        mock_client_socket = MagicMock()
+        mock_ip_addr = ("127.0.0.1", 1234)
+        tracker_api.recv_socket.accept = MagicMock(return_value=(mock_client_socket, mock_ip_addr))
+
+        tracker_api.start()
+
+        tracker_api.create_new_client_connection.assert_called_once_with(mock_client_socket, mock_ip_addr)
+        mock_client_connection.start.assert_called_once()
+        assert len(tracker_api.client_list) == 1
+        assert tracker_api.client_list[0] == mock_client_connection
