@@ -4,10 +4,8 @@ from tracker.tracker_api import TrackerApi
 import threading
 
 
-
-
-class TrackerApiTest:
-    def should_create_a_thread_for_new_connection():
+class TestTrackerApi:
+    def test_should_create_a_thread_for_new_connection():
         """
         Test Requirements:
             1. Invoke create_new_client_connection on socket accepts
@@ -20,7 +18,7 @@ class TrackerApiTest:
             # TODO
             pass
 
-    def should_send_back_ACK_with_client_uuid_on_connection_init():
+    def test_should_send_back_ACK_with_client_uuid_on_connection_init():
         pass
 
     def test_start_method(self):
@@ -46,4 +44,3 @@ class TrackerApiTest:
             assert len(tracker_api.client_list) == 1
             connection = tracker_api.client_list[0]
             assert isinstance(connection, threading.Thread)
-

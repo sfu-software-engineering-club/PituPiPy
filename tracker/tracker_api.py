@@ -27,7 +27,11 @@ class ClientConnection(threading.Thread):
     def send_peer_list(self):
         peer_list = []
         for i in self.api.client_list:
-            client = {'id': i.client_id, 'ip': i.client_ip_addr[0], 'port': i.client_ip_addr[1]}
+            client = {
+                "id": i.client_id,
+                "ip": i.client_ip_addr[0],
+                "port": i.client_ip_addr[1],
+            }
             peer_list.append(client)
         data = json.dumps(peer_list)
         return data
@@ -73,9 +77,6 @@ class TrackerApi:
             self.client_list.append(connection)
             print("Network participants: ", len(self.client_list))
 
-
-    # Unit Test
-    @pytest.fixture
     def mock_client_connection(monkeypatch):
         mock_connection = MagicMock(spec=ClientConnection)
         mock_connection.start = MagicMock()
@@ -84,15 +85,21 @@ class TrackerApi:
 
     def test_tracker_api_start(mock_client_connection):
         tracker_api = TrackerApi("127.0.0.1", 8080)
-        tracker_api.create_new_client_connection = MagicMock(return_value=mock_client_connection)
+        tracker_api.create_new_client_connection = MagicMock(
+            return_value=mock_client_connection
+        )
 
         mock_client_socket = MagicMock()
         mock_ip_addr = ("127.0.0.1", 1234)
-        tracker_api.recv_socket.accept = MagicMock(return_value=(mock_client_socket, mock_ip_addr))
+        tracker_api.recv_socket.accept = MagicMock(
+            return_value=(mock_client_socket, mock_ip_addr)
+        )
 
         tracker_api.start()
 
-        tracker_api.create_new_client_connection.assert_called_once_with(mock_client_socket, mock_ip_addr)
+        tracker_api.create_new_client_connection.assert_called_once_with(
+            mock_client_socket, mock_ip_addr
+        )
         mock_client_connection.start.assert_called_once()
         assert len(tracker_api.client_list) == 1
         assert tracker_api.client_list[0] == mock_client_connection
