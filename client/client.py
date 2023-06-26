@@ -82,12 +82,12 @@ class Client:
         self.tracker_socket.send("LIST_PEERS: ".encode())
         # TODO: receive list of peers from tracker
         data = self.tracker_socket.recv(1024)
-        data = data.decode('utf-8')
+        data = data.decode("utf-8")
         data = json.loads(data)
         peer_list = []
         for i in data:
-            if i['id'] != self.node.client_id.strip("'"):
-                peer_list.append([i['id'], i['ip'], i['port']])
+            if i["id"] != self.node.client_id.strip("'"):
+                peer_list.append([i["id"], i["ip"], i["port"]])
         return peer_list
 
     def request_tracker_exit_network(self):
