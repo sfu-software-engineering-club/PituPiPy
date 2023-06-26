@@ -38,32 +38,36 @@ class Client:
 
     def connect_to_tracker(self):
         if self.tracker_socket is not None:
-            self.tracker_socket.close()
-        try:
-            print("\nConnecting to Network Tracker...")
-            self.tracker_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            self.tracker_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-            self.tracker_socket.connect((self.tracker_ip, self.tracker_port))
+            self.tracker_socket.send("AlreadyConnected: ".encode())
+            data = self.tracker_socket.recv(1024)
+            data = data.decode('utf-8')
+            print("Action denied: ", data)
+        else:
+            try:
+                print("\nConnecting to Network Tracker...")
+                self.tracker_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                self.tracker_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+                self.tracker_socket.connect((self.tracker_ip, self.tracker_port))
 
-            # Receive ACK from tracker with assigned client id
-            ack = self.tracker_socket.recv(1024)
-            my_client_id = repr(ack.decode())
-            self.node = ClientNode(my_client_id, self.ip, self.port, self.file_port)
-            self.node.daemon = True
-            self.node.start()
-            print("Connected. [client id: {}]".format(my_client_id))
+                # Receive ACK from tracker with assigned client id
+                ack = self.tracker_socket.recv(1024)
+                my_client_id = repr(ack.decode())
+                self.node = ClientNode(my_client_id, self.ip, self.port, self.file_port)
+                self.node.daemon = True
+                self.node.start()
+                print("Connected. [client id: {}]".format(my_client_id))
 
-            peer_list = self.request_tracker_list_of_peers()
-            print("peer list: ", peer_list)
-            #self.node.connect_to_peers(peer_list)
+                peer_list = self.request_tracker_list_of_peers()
+                print("peer list: ", peer_list)
+                #self.node.connect_to_peers(peer_list)
 
-        except Exception as e:
-            print(
-                "Error: Could not connect to tracker ({}:{})".format(
-                    self.tracker_ip, self.tracker_port
+            except Exception as e:
+                print(
+                    "Error: Could not connect to tracker ({}:{})".format(
+                        self.tracker_ip, self.tracker_port
+                    )
                 )
-            )
-            print(e)
+                print(e)
 
     def request_tracker_list_of_peers(self):
         """

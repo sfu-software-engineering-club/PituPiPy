@@ -26,9 +26,7 @@ class CLI:
 
                 elif cmd == "status":
                     peer_list = self.client.request_tracker_list_of_peers()
-                    for id, ipAddr in peer_list:
-                        print("[ID: {}] {}".format(id, ipAddr))
-
+                    
                 elif cmd == "send_message":
                     if self.client.node is None:
                         raise Exception("Error: client is not connected to network")
