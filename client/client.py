@@ -5,6 +5,7 @@ from client_node import ClientNode
 from cli import CLI
 import json
 
+
 class Client:
     def __init__(self, tracker_ip, tracker_port, port, file_port):
         self.tracker_ip = tracker_ip
@@ -41,21 +42,24 @@ class Client:
             self.tracker_socket.close()
         try:
             print("\nConnecting to Network Tracker...")
-            self.tracker_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            self.tracker_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+            self.tracker_socket = socket.socket(
+                socket.AF_INET, socket.SOCK_STREAM)
+            self.tracker_socket.setsockopt(
+                socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
             self.tracker_socket.connect((self.tracker_ip, self.tracker_port))
 
             # Receive ACK from tracker with assigned client id
             ack = self.tracker_socket.recv(1024)
             my_client_id = repr(ack.decode())
-            self.node = ClientNode(my_client_id, self.ip, self.port, self.file_port)
+            self.node = ClientNode(my_client_id, self.ip,
+                                   self.port, self.file_port)
             self.node.daemon = True
             self.node.start()
             print("Connected. [client id: {}]".format(my_client_id))
 
             peer_list = self.request_tracker_list_of_peers()
             print("peer list: ", peer_list)
-            #self.node.connect_to_peers(peer_list)
+            # self.node.connect_to_peers(peer_list)
 
         except Exception as e:
             print(
@@ -78,12 +82,12 @@ class Client:
         self.tracker_socket.send("LIST_PEERS: ".encode())
         # TODO: receive list of peers from tracker
         data = self.tracker_socket.recv(1024)
-        data = data.decode('utf-8')
+        data = data.decode("utf-8")
         data = json.loads(data)
         peer_list = []
         for i in data:
-            if i['id'] != self.node.client_id.strip("'"):
-                peer_list.append([i['id'], i['ip'], i['port']])
+            if i["id"] != self.node.client_id.strip("'"):
+                peer_list.append([i["id"], i["ip"], i["port"]])
         return peer_list
 
     def request_tracker_exit_network(self):
@@ -104,7 +108,10 @@ class Client:
         print(pad("  Options"))
         print(pad("/connect"), "--", "connect to tracker")
         print(pad("/status"), "--", "show the current network connection status")
-        print(pad("/send_message [message]"), "--", "send a message to network")
+        print(pad("/log_file_output [location]"),
+              "--", "logging file location")
+        print(pad("/send_message [message]"),
+              "--", "send a message to network")
         print(pad("/exit"), "--", "exit from network")
         print(pad("/shutdown"), "--", "terminate the client")
 
@@ -119,7 +126,8 @@ class Client:
 if __name__ == "__main__":
     argv = sys.argv[1:]
     opts, args = getopt.getopt(
-        argv, "h", ["client_port=", "client_file_port=", "tracker_ip=", "tracker_port="]
+        argv, "h", ["client_port=", "client_file_port=",
+                    "tracker_ip=", "tracker_port="]
     )
     tracker_ip = None
     tracker_port = None
