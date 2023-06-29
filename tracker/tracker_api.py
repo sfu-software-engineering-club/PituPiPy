@@ -40,26 +40,29 @@ class ClientConnection(threading.Thread):
         while True:
             received = self.client_socket.recv(1024).decode()
             print("\nData received: ", received)
-
             try:
                 key, value = received.split(":")
 
                 if key == "LIST_PEERS":
                     data = self.send_peer_list()
                     self.send_message(data)
-
+                elif key == "AlreadyConnected":
+                    self.send_message("You are already connected")
             except Exception as e:
                 print("Error occurred: ", e)
+                return
 
 
 class TrackerApi:
-    def __init__(self, ip, port):
+    def __init__(self, ip, port, capacity):
         self.recv_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.recv_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         self.recv_socket.bind((ip, port))
         self.recv_socket.listen()
 
         self.client_list = []
+        self.capacity = capacity
+        print("capa: ", capacity)
 
     def create_new_client_connection(self, client_socket, ip_addr):
         client_connection = ClientConnection(self, client_socket, ip_addr)
@@ -71,11 +74,10 @@ class TrackerApi:
         print("\nTracker API Listening")
         while True:
             client_socket, ip_addr = self.recv_socket.accept()
-
             print("\nNew connection request received: ", ip_addr)
             connection = self.create_new_client_connection(client_socket, ip_addr)
             self.client_list.append(connection)
-            print("Network participants: ", len(self.client_list))
+            print("Network participants: ", len(self.client_list), " / ", self.capacity)
 
     def mock_client_connection(monkeypatch):
         mock_connection = MagicMock(spec=ClientConnection)

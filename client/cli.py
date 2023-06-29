@@ -32,9 +32,7 @@ class CLI:
 
                 elif cmd == "status":
                     peer_list = self.client.request_tracker_list_of_peers()
-                    for id, ipAddr in peer_list:
-                        print("[ID: {}] {}".format(id, ipAddr))
-
+                    
                 elif cmd == "send_message":
                     message = argument
                     if self.client.node is None:
