@@ -44,3 +44,23 @@ class TestTrackerApi:
             assert len(tracker_api.client_list) == 1
             connection = tracker_api.client_list[0]
             assert isinstance(connection, threading.Thread)
+
+        tracker_api = TrackerApi("127.0.0.1", 8080)
+        tracker_api.create_new_client_connection = MagicMock(
+            return_value=mock_client_connection
+        )
+
+        mock_client_socket = MagicMock()
+        mock_ip_addr = ("127.0.0.1", 1234)
+        tracker_api.recv_socket.accept = MagicMock(
+            return_value=(mock_client_socket, mock_ip_addr)
+        )
+
+        tracker_api.start()
+
+        tracker_api.create_new_client_connection.assert_called_once_with(
+            mock_client_socket, mock_ip_addr
+        )
+        mock_client_connection.start.assert_called_once()
+        assert len(tracker_api.client_list) == 1
+        assert tracker_api.client_list[0] == mock_client_connection

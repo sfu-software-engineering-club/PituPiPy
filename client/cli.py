@@ -8,8 +8,21 @@ class CLI:
         self.client = client
         self.log_file = None
 
-    def cli(self):
-        self.client.print_help()
+    def print_help(self):
+        def pad(str):
+            return str.ljust(20)
+
+        print("\n")
+        print(pad("  Options"))
+        print(pad("/connect"), "--", "connect to tracker")
+        print(pad("/status"), "--", "show the current network connection status")
+        print(pad("/log_file_output [location]"), "--", "logging file location")
+        print(pad("/send_message [message]"), "--", "send a message to network")
+        print(pad("/exit"), "--", "exit from network")
+        print(pad("/shutdown"), "--", "terminate the client")
+
+    def run_on_terminal(self):
+        self.print_help()
         while True:
             print("\n")
             print(self.COMMAND_PROMPT, end="")
@@ -25,25 +38,24 @@ class CLI:
 
             try:
                 if cmd == "help":
-                    self.client.print_help()
+                    self.print_help()
 
                 elif cmd == "connect":
                     self.client.connect_to_tracker()
 
                 elif cmd == "status":
                     peer_list = self.client.request_tracker_list_of_peers()
-                    
+
                 elif cmd == "send_message":
                     message = argument
-                    if self.client.node is None:
-                        raise Exception(
-                            "Error: client is not connected to network")
+                    if self.client.client_connection_node is None:
+                        raise Exception("Error: client is not connected to network")
                     elif message == "":
                         print("No message provided")
 
                     else:
                         print("Sending message: [{}]".format(message))
-                        self.client.node.broadcast_message(message)
+                        self.client.client_connection_node.broadcast_message(message)
                         if self.log_file is not None:
                             self.log_file.log_message(message)
 
