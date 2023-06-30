@@ -4,23 +4,40 @@ import socket
 from tracker_api import TrackerApi
 
 
+class TrackerProfile:
+    def __init__(self, host, port, network_capacity=20) -> None:
+        self.host = host
+        self.port = port
+        assert type(network_capacity) is int
+        self.network_capacity = network_capacity
+
+    def get_host_and_port(self):
+        return (self.host, int(self.port))
+
+    def get_network_capacity(self):
+        return self.network_capacity
+
+
 class Tracker:
     def __init__(self, port, capacity=20):
-        self.hostname = socket.gethostname()
-        self.ip = socket.gethostbyname(self.hostname)
-        self.port = port
-        self.capacity = capacity
-        self.api = TrackerApi(self.ip, self.port, self.capacity)
+        self.profile = TrackerProfile(
+            socket.gethostbyname(socket.gethostname()), port, capacity
+        )
+        self.api = TrackerApi(self.profile)
 
-    def start(self):
+    def show_intro(self):
         print("  Python P2P Chat and File Transfer")
         print("  ")
         print("  Starting P2P Network Tracker\n")
+        ip, port = self.profile.get_host_and_port()
+        capacity = self.profile.get_network_capacity()
+        print("HOST: {}".format(ip))
+        print("PORT: {}".format(port))
+        print("NETWORK CAPACITY: {}".format(capacity))
 
-        print("HOST: {}".format(self.ip))
-        print("PORT: {}".format(self.port))
-
-        self.api.start()
+    def start(self):
+        self.show_intro()
+        self.api.run_on_terminal()
 
 
 if __name__ == "__main__":
@@ -28,7 +45,8 @@ if __name__ == "__main__":
     opts, args = getopt.getopt(argv, "h", ["port="])
 
     port = None
-    def pad(str):   
+
+    def pad(str):
         return str.ljust(15)
 
     tracker_params = []
@@ -38,7 +56,7 @@ if __name__ == "__main__":
             print("e.g. python tracker.py --port=3000")
             sys.exit()
         if opt == "--port":
-            if len(args) != 0:                     
+            if len(args) != 0:
                 port = int(arg)
                 capacity = int(args[0])
                 tracker_params = [port, capacity]
