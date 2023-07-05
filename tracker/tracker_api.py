@@ -16,10 +16,10 @@ class Network:
 
     def add_client_connection_to_network(self, client_connection):
         assert len(self.client_connections) < self.capacity
+        self.client_connections.append(client_connection)
         print(
             "Network participants: ", len(self.client_connections), " / ", self.capacity
         )
-        self.client_connections.append(client_connection)
 
     def remove_client_from_network(self, client_connection):
         pass
