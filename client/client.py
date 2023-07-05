@@ -142,6 +142,7 @@ class Client:
                 self.tracker_connection = TrackerConnection(
                     profile=self.tracker_profile
                 )
+
                 self.tracker_connection.create_connection()
 
                 self.tracker_connection.send(
@@ -153,9 +154,12 @@ class Client:
                         },
                     }
                 )
+
                 received = self.tracker_connection.receive()
                 if not self.check_response(received):
+                    print("Data received: ", received)
                     err_msg = received["value"] if "value" in received else ""
+                    print("Error: ", err_msg)
                     raise Exception()
 
                 client_id = received["value"]
@@ -192,7 +196,7 @@ class Client:
                     )
                 )
                 print(e)
-                traceback.print_exc()
+                #traceback.print_exc()
 
     def request_peer_list(self):
         assert (
