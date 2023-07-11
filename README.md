@@ -12,10 +12,17 @@ Formatting
 
 tracker startup command:  
 `
-python tracker/tracker.py --port=[TRACKER_PORT]
+python tracker/tracker.py [Optional:Network_Capacity]
+`
+e.g.
+`
+python tracker/tracker.py 20
 `
 
 client startup command:  
 `
-python client/client.py --client_port=[CLIENT_PORT] --client_file_port=[CLIENT_FILE_PORT] --tracker_ip=[TRACKER_IP] --tracker_port=[TRACKER_PORT]
+python client/client.py --client_ip=[CLIENT_IP] --client_port=[CLIENT_PORT] --client_file_port=[CLIENT_FILE_PORT] --tracker_ip=[TRACKER_IP] --tracker_port=[TRACKER_PORT]
 `
+Optional Arguments  
+--client_ip  
+--client_port  
