@@ -15,19 +15,18 @@ on:
     branches: [ "main" ]
 
 jobs:
-  deploy:
+  build:
 
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v2 # Checking out the repo
-
-    - name: Install dependencies
-      uses: VaultVulp/action-pipenv@v2.0.1
+    - uses: actions/checkout@v3
+    - uses: actions/setup-python@v4
       with:
-        command: install -d # Install all dependencies, including development ones
-    
-    - name: Test
-      uses: VaultVulp/action-pipenv@v2.0.1
-      with:
-        command: pytest
+        python-version: '3.10'
+    - name: Install pipenv
+      run: pip install pipenv
+    - name: Run tests
+      run: |
+        pipenv install --dev
+        pipenv run pytest
