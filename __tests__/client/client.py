@@ -1,8 +1,8 @@
 import sys
 import getopt
 import socket
-from client_node import ClientNode
-from cli import CLI
+from .client_node import ClientNode
+from .cli import CLI
 import json
 import traceback
 
@@ -215,11 +215,6 @@ class Client:
         return peer_list
 
     def exit_network(self):
-        assert (
-            self.tracker_connection is not None
-            and self.tracker_connection.is_connection_active()
-            and self.client_profile.get_client_id() is not None
-        )
         self.tracker_connection.send(
             {"api_key": "QUIT", "value": self.client_profile.get_client_id()}
         )
