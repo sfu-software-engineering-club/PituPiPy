@@ -12,7 +12,7 @@ Formatting
 
 tracker startup command:  
 `
-python tracker/tracker.py [Optional:Network_Capacity]
+python tracker/tracker.py --port [Optional:Network_Capacity]
 `
 e.g.
 `
