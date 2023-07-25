@@ -254,7 +254,7 @@ class Client:
 
     # whisper message
     def send_whisper(self, client_id, message):
-        if not self.client_connection_node:
+        if self.client_connection is not None:
             print("Client not connected to any peer")
             return
 
