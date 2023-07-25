@@ -96,3 +96,18 @@ class ClientNode(threading.Thread):
             conn = Connection(self.log_file, conn_socket=other_client_node_socket)
             conn.start()
             self.connection_list.append(conn)
+
+    def send_whisper_message(self, client_id, message):
+
+        target_connection = None
+        for conn in self.connection_list:
+            if conn.conn_socket.getpeername()[1] == client_id:
+                target_connection = conn
+                break
+
+        # If the target_connection found, send the whisper message
+        if target_connection:
+            target_connection.send_message(message)
+            print(f"Whisper Message sent to Client ID: {client_id}")
+        else:
+            print(f"Client ID: {client_id} not found. Message not delivered.")

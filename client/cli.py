@@ -12,7 +12,7 @@ class CLI:
     def print_help(self):
         def format(str1, str2):
             return "{:<20} {}".format(str1, str2)
-
+        
         self.log_file.write_log_message(format("Options", "") + "\n")
         self.log_file.write_log_message(format("/connect", "-- connect to tracker\n"))
         self.log_file.write_log_message(
@@ -20,6 +20,9 @@ class CLI:
         )
         self.log_file.write_log_message(
             format("/send_message [message]", "-- send a message to network\n")
+        )
+        self.log_file.write_log_message(
+            format("/whisper [client_id] [message]", "-- send a message to single opponent clientk\n")
         )
         self.log_file.write_log_message(format("/exit", "-- exit from network\n"))
         self.log_file.write_log_message(
@@ -79,10 +82,28 @@ class CLI:
                     else:
                         self.client.client_connection_node.broadcast_message(message)
                         if self.log_file is not None:
-                            self.log_file.write_log_message(
-                                "\nMessage Sent: {}\n".format(message)
-                            )
-                            self.write_terminal()
+                            self.log_file.log_message(message)
+
+                # /whisper command implementation
+                elif cmd.startswith("/whisper"):
+                    _, client_id, message = cmd.split(maxsplit=2)
+                    if self.client.client_connection_node is None:
+                        raise Exception("Error: client is not connected to the network")
+                    elif client_id == "":
+                        print("No client ID provided for whispering")
+                    elif message == "":
+                        print("No message provided for whispering")
+                    else:
+                        print(f"Whisper Sent to Client ID: {client_id}, Message: {message}")
+                        self.client.client_connection_node.send_private_message(client_id, message) 
+
+                elif cmd == "log_file_output":
+                    location = argument
+                    self.log_file = Logger(location)
+                    if location == "":
+                        print("No location provided")
+                    else:
+                        self.log_file.create_log_file()
 
                 elif cmd == "exit":
                     success = self.client.request_tracker_exit_network()
