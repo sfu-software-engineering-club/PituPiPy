@@ -1,4 +1,5 @@
 import os
+import sys
 
 
 class CLI:
@@ -81,7 +82,7 @@ class CLI:
                             message)
                         if self.log_file is not None:
                             self.log_file.write_log_message(
-                                "Message Sent: {}\n\n".format(message))
+                                "\nMessage Sent: {}\n".format(message))
                             self.write_terminal()
 
                 elif cmd == "exit":
@@ -93,6 +94,7 @@ class CLI:
 
                 elif cmd == "/q" or cmd == "shutdown":
                     self.client.shutdown()
+                    sys.exit()
 
                 else:
                     print("Error: unknown command: {}".format(cmd))
