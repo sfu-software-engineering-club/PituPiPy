@@ -1,38 +1,60 @@
-from logger import Logger
+import os
 
 
 class CLI:
     COMMAND_PROMPT = "\nCOMMAND? [/q or /shutdown] >> /"
 
-    def __init__(self, client):
+    def __init__(self, client, log_file):
         self.client = client
-        self.log_file = None
+        self.log_file = log_file
 
     def print_help(self):
-        def pad(str):
-            return str.ljust(20)
+        def format(str1, str2):
+            return "{:<20} {}".format(str1, str2)
 
-        print("\n")
-        print(pad("  Options"))
-        print(pad("/connect"), "--", "connect to tracker")
-        print(pad("/status"), "--", "show the current network connection status")
-        print(pad("/log_file_output [location]"), "--", "logging file location")
-        print(pad("/send_message [message]"), "--", "send a message to network")
-        print(pad("/exit"), "--", "exit from network")
-        print(pad("/shutdown"), "--", "terminate the client")
+        self.log_file.write_log_message(format("Options", "") + "\n")
+        self.log_file.write_log_message(
+            format("/connect", "-- connect to tracker\n"))
+        self.log_file.write_log_message(
+            format("/status", "-- show the current network connection status\n"))
+        self.log_file.write_log_message(
+            format("/send_message [message]", "-- send a message to network\n"))
+        self.log_file.write_log_message(
+            format("/exit", "-- exit from network\n"))
+        self.log_file.write_log_message(
+            format("/shutdown", "-- terminate the client\n\n"))
+
+    def write_terminal(self):
+        # clear terminal screen before printing COMMAND_PROMPT
+        # Windows : cls
+        # Unix : clear
+        os.system("cls" if os.name == "nt" else "clear")
+
+        self.log_file.show_log_message()
 
     def run_on_terminal(self):
         self.print_help()
+
         while True:
-            print("\n")
+            self.write_terminal()
+
+            # get terminal size
+            term_rows, term_cols = os.get_terminal_size()
+
+            # calculate number of lines needed to print
+            num_lines_needed = (len(self.COMMAND_PROMPT) +
+                                term_cols - 1) // term_cols
+
+            # move cursor to last line to print COMMAND_PROMPT
+            print("\033[{};0H".format(term_rows - num_lines_needed))
+
             print(self.COMMAND_PROMPT, end="")
+
             cmd = input()
-            argument = ""
             message = ""
-            location = ""
 
             if len(cmd.split(" ", 1)) > 1:
-                cmd, argument = cmd.split(" ", 1)
+                cmd, message = cmd.split(" ", 1)
             else:
                 cmd = cmd.strip()
 
@@ -47,25 +69,20 @@ class CLI:
                     peer_list = self.client.request_tracker_list_of_peers()
 
                 elif cmd == "send_message":
-                    message = argument
                     if self.client.client_connection_node is None:
-                        raise Exception("Error: client is not connected to network")
+                        raise Exception(
+                            "Error: client is not connected to network")
                     elif message == "":
-                        print("No message provided")
+                        self.log_file.write_log_message("No message provided")
+                        self.write_terminal()
 
                     else:
-                        print("Sending message: [{}]".format(message))
-                        self.client.client_connection_node.broadcast_message(message)
+                        self.client.client_connection_node.broadcast_message(
+                            message)
                         if self.log_file is not None:
-                            self.log_file.log_message(message)
-
-                elif cmd == "log_file_output":
-                    location = argument
-                    self.log_file = Logger(location)
-                    if location == "":
-                        print("No location provided")
-                    else:
-                        self.log_file.create_log_file()
+                            self.log_file.write_log_message(
+                                "Message Sent: {}\n\n".format(message))
+                            self.write_terminal()
 
                 elif cmd == "exit":
                     success = self.client.request_tracker_exit_network()
