@@ -5,6 +5,7 @@ from client_node import ClientNode
 from cli import CLI
 import json
 import traceback
+from logger import Logger
 
 
 class ClientProfile:
@@ -83,6 +84,7 @@ class Client:
 
         self.tracker_connection = None
         self.client_connection_node = None
+        self.log_file = Logger()
 
     def attach_tracker_profile(self, profile):
         assert isinstance(profile, TrackerProfile)
@@ -93,19 +95,18 @@ class Client:
         self.client_profile = profile
 
     def show_intro(self):
-        print("  Python P2P Chat and File Transfer")
-        print("  ")
-        print("  Starting P2P Client\n")
+        self.log_file.write_log_message("  Python P2P Chat and File Transfer\n\n")
+        self.log_file.write_log_message("  Starting P2P Client\n\n")
 
         ip, port = self.client_profile.get_host_and_port()
         tip, tport = self.tracker_profile.get_host_and_port()
-        print("HOST: {}".format(ip))
-        print("PORT: {}".format(port))
-        print("TRACKER_IP: {}".format(tip))
-        print("TRACKER_PORT: {}".format(tport))
+        self.log_file.write_log_message("HOST: {}\n".format(ip))
+        self.log_file.write_log_message("PORT: {}\n".format(port))
+        self.log_file.write_log_message("TRACKER_IP: {}\n".format(tip))
+        self.log_file.write_log_message("TRACKER_PORT: {}\n\n".format(tport))
 
     def open_cli(self):
-        self.cli = CLI(self)
+        self.cli = CLI(self, self.log_file)
         self.cli.run_on_terminal()
 
     def start(self):
@@ -131,14 +132,14 @@ class Client:
             self.tracker_connection is not None
             and self.tracker_connection.is_connection_active()
         ):
-            print(
+            self.log_file.write_log_message(
                 "Already connected: Tracker {}".format(
                     self.tracker_profile.get_host_and_port()
                 )
             )
         else:
             try:
-                print("\nConnecting to Network Tracker...")
+                self.log_file.write_log_message("Connecting to Network Tracker...\n")
                 self.tracker_connection = TrackerConnection(
                     profile=self.tracker_profile
                 )
@@ -157,29 +158,35 @@ class Client:
 
                 received = self.tracker_connection.receive()
                 if not self.check_response(received):
-                    print("Data received: ", received)
+                    self.log_file.write_log_message("Data received: ", received)
                     err_msg = received["value"] if "value" in received else ""
-                    print("Error: ", err_msg)
+                    self.log_file.write_log_message("Error: ", err_msg)
                     raise Exception()
 
                 client_id = received["value"]
                 self.client_profile.set_client_id(client_id)
 
-                print("Connected to Tracker! client id [{}]".format(client_id))
+                self.log_file.write_log_message(
+                    "Connected to Tracker!\nclient id [{}]\n\n".format(client_id)
+                )
 
-                self.client_connection_node = ClientNode(self.client_profile)
+                self.client_connection_node = ClientNode(
+                    self.client_profile, self.log_file
+                )
                 self.client_connection_node.daemon = True
                 self.client_connection_node.start()
 
-                print("\nRequesting Network Peer Information...")
+                self.log_file.write_log_message(
+                    "Requesting Network Peer Information...\n"
+                )
                 peer_list = self.request_peer_list()
 
-                print("Received Peer Information!")
-                print("\nConnecting to Peers")
+                self.log_file.write_log_message("Received Peer Information!\n\n")
+                self.log_file.write_log_message("Connecting to Peers\n")
                 for p in peer_list:
                     if p["id"] != client_id:
-                        print(
-                            "ID: {}, IP_ADDR: {}, PORT: {}".format(
+                        self.log_file.write_log_message(
+                            "ID: {}, IP_ADDR: {}, PORT: {}\n".format(
                                 p["id"], p["ip"], p["port"]
                             )
                         )
@@ -187,10 +194,10 @@ class Client:
                             ClientProfile(p["id"], p["ip"], p["port"])
                         )
 
-                print("Done!")
+                self.log_file.write_log_message("Done!\n\n")
 
             except Exception as e:
-                print(
+                self.log_file.write_log_message(
                     "Error: connection failed: Tracker {}".format(
                         self.tracker_profile.get_host_and_port()
                     )
@@ -206,7 +213,7 @@ class Client:
         self.tracker_connection.send({"api_key": "LIST_PEERS"})
         received = self.tracker_connection.receive()
         if not self.check_response(received):
-            print("Failed to retrieve peer information")
+            self.log_file.write_log_message("Failed to retrieve peer information")
             raise Exception()
 
         data = received["value"]
@@ -233,6 +240,7 @@ class Client:
             and self.tracker_connection.is_connection_active()
             and self.client_profile.get_client_id() is not None
         ):
+            self.log_file.delete_log_file()
             self.exit_network()
 
     def __del__(self):
