@@ -14,16 +14,17 @@ class CLI:
             return "{:<20} {}".format(str1, str2)
 
         self.log_file.write_log_message(format("Options", "") + "\n")
+        self.log_file.write_log_message(format("/connect", "-- connect to tracker\n"))
         self.log_file.write_log_message(
-            format("/connect", "-- connect to tracker\n"))
+            format("/status", "-- show the current network connection status\n")
+        )
         self.log_file.write_log_message(
-            format("/status", "-- show the current network connection status\n"))
+            format("/send_message [message]", "-- send a message to network\n")
+        )
+        self.log_file.write_log_message(format("/exit", "-- exit from network\n"))
         self.log_file.write_log_message(
-            format("/send_message [message]", "-- send a message to network\n"))
-        self.log_file.write_log_message(
-            format("/exit", "-- exit from network\n"))
-        self.log_file.write_log_message(
-            format("/shutdown", "-- terminate the client\n\n"))
+            format("/shutdown", "-- terminate the client\n\n")
+        )
 
     def write_terminal(self):
         # clear terminal screen before printing COMMAND_PROMPT
@@ -43,8 +44,7 @@ class CLI:
             term_rows, term_cols = os.get_terminal_size()
 
             # calculate number of lines needed to print
-            num_lines_needed = (len(self.COMMAND_PROMPT) +
-                                term_cols - 1) // term_cols
+            num_lines_needed = (len(self.COMMAND_PROMPT) + term_cols - 1) // term_cols
 
             # move cursor to last line to print COMMAND_PROMPT
             print("\033[{};0H".format(term_rows - num_lines_needed))
@@ -71,18 +71,17 @@ class CLI:
 
                 elif cmd == "send_message":
                     if self.client.client_connection_node is None:
-                        raise Exception(
-                            "Error: client is not connected to network")
+                        raise Exception("Error: client is not connected to network")
                     elif message == "":
                         self.log_file.write_log_message("No message provided")
                         self.write_terminal()
 
                     else:
-                        self.client.client_connection_node.broadcast_message(
-                            message)
+                        self.client.client_connection_node.broadcast_message(message)
                         if self.log_file is not None:
                             self.log_file.write_log_message(
-                                "\nMessage Sent: {}\n".format(message))
+                                "\nMessage Sent: {}\n".format(message)
+                            )
                             self.write_terminal()
 
                 elif cmd == "exit":

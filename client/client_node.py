@@ -33,8 +33,7 @@ class Connection(threading.Thread):
         COMMAND_PROMPT = "\nCOMMAND? [/q or /shutdown] >> /"
 
         # calculate number of lines needed to print
-        num_lines_needed = (len(COMMAND_PROMPT) +
-                            term_cols - 1) // term_cols
+        num_lines_needed = (len(COMMAND_PROMPT) + term_cols - 1) // term_cols
 
         # move cursor to last line to print COMMAND_PROMPT
         print("\033[{};0H".format(term_rows - num_lines_needed))
@@ -64,8 +63,7 @@ class ClientNode(threading.Thread):
     def create_server_socket(self):
         ip, port = self.profile.get_host_and_port()
         self.server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.server_socket.setsockopt(
-            socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        self.server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         self.server_socket.bind((ip, port))
         self.server_socket.listen()
         return self.server_socket
@@ -95,7 +93,6 @@ class ClientNode(threading.Thread):
     def run(self):
         while not self.stop_flag:
             other_client_node_socket, address = self.server_socket.accept()
-            conn = Connection(
-                self.log_file, conn_socket=other_client_node_socket)
+            conn = Connection(self.log_file, conn_socket=other_client_node_socket)
             conn.start()
             self.connection_list.append(conn)

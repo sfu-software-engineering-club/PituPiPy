@@ -11,8 +11,7 @@ class Logger:
         log_folder = os.path.join(os.getcwd(), "logger")
         os.makedirs(log_folder, exist_ok=True)
 
-        self.location = os.path.join(
-            log_folder, f"{self.client_id}.txt")
+        self.location = os.path.join(log_folder, f"{self.client_id}.txt")
 
     def write_log_message(self, message):
         print(message)
