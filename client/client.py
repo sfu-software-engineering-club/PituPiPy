@@ -219,6 +219,12 @@ class Client:
         data = received["value"]
         my_id = self.client_profile.get_client_id()
         peer_list = filter(lambda p: p["id"] is not my_id, data)
+        
+        # add a /status command to list peer information with IDs on the terminal
+        print("The Peer Information with IDs: ")
+        for peer in peer_list:
+            print (f"Peer ID: {peer['id']}, IP: {peer['ip']}")
+    
         return peer_list
 
     def exit_network(self):
@@ -246,6 +252,18 @@ class Client:
     def __del__(self):
         self.shutdown()
 
+    # whisper message
+    def send_whisper(self, client_id, message):
+        if self.client_connection is not None:
+            print("Client not connected to any peer")
+            return
+
+        if client_id == self.client_profile.get_client_id():
+            print("Whisper message cannot be sent to yourself")
+            return
+
+        self.client_connection_node.send_private_message(client_id, message)
+        print(f"Whisper message sent to Client ID: {client_id}")
 
 if __name__ == "__main__":
     argv = sys.argv[1:]
