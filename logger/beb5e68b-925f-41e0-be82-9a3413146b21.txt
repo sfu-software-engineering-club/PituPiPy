@@ -1,0 +1,1007 @@
+  Python P2P Chat and File Transfer
+
+  Starting P2P Client
+
+HOST: 172.29.146.44
+PORT: 2002
+TRACKER_IP: 172.29.146.44
+TRACKER_PORT: 1600
+
+Options              
+/connect             -- connect to tracker
+/status              -- show the current network connection status
+/send_message [message] -- send a message to network
+/whisper [client_id] [message] -- send a message to single opponent clientk
+/exit                -- exit from network
+/shutdown            -- terminate the client
+
+Connecting to Network Tracker...
+Connected to Tracker!
+client id [7176ac8a-019f-46d4-947d-6be26eca8f62]
+
+Requesting Network Peer Information...
+Received Peer Information!
+
+Connecting to Peers
+Done!
+
+
+Message Received: This is a test file 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 
+
+Message Received: 

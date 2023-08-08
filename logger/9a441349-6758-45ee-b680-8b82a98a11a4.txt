@@ -1,0 +1,27 @@
+  Python P2P Chat and File Transfer
+
+  Starting P2P Client
+
+HOST: 172.29.146.44
+PORT: 3001
+TRACKER_IP: 172.29.146.44
+TRACKER_PORT: 1600
+
+Options              
+/connect             -- connect to tracker
+/status              -- show the current network connection status
+/send_message [message] -- send a message to network
+/whisper [client_id] [message] -- send a message to single opponent clientk
+/exit                -- exit from network
+/shutdown            -- terminate the client
+
+Connecting to Network Tracker...
+Connected to Tracker!
+client id [98b06e95-0679-4079-afad-4bfacc8b67a9]
+
+Requesting Network Peer Information...
+Received Peer Information!
+
+Connecting to Peers
+Done!
+
