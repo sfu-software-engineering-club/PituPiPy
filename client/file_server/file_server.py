@@ -1,11 +1,12 @@
 from enum import Enum
-from chunk import Chunk
 import threading
 import socket
 import json
+import os
 
+CHUNK_SIZE = 4
 
-class ServerMode(enum):
+class ServerMode(Enum):
     RECEIVER = (1,)
     SENDER = 2
 
@@ -16,6 +17,20 @@ class File:
         self.filepath = ""
         self.file_size = 0
         self.number_of_chunks = 0
+        self.CHUNK_SIZE = CHUNK_SIZE
+
+    def read_file(self, file_path):
+        self.filepath = file_path
+        
+        with open(file_path, "rb") as file:
+            chunk_count = 0
+            while True:
+                chunk = file.read(self.CHUNK_SIZE)
+                if not chunk:
+                    break
+                chunk_count += 1
+        self.file_size = chunk_count * self.CHUNK_SIZE
+        self.number_of_chunks = chunk_count
 
 
 class FileServer:
@@ -25,115 +40,108 @@ class FileServer:
         self.ip_addr = ip_addr
         self.port = port
         self.mutex = threading.Lock()
-        pass
-
+        
     def send_file(self, receiver_ip_addr, receiver_port, chunk_start, chunk_end):
-        # if len(offsets) == 1:  # chunk end (exclusive)
-        #    pass
-        # if len(offsets) == 2:  # chunk start, chunk end
-        #    pass
-
-        # Create a new thread for the file transfer
-        transfer_thread = threading.Thread(
-            target=self._send_file_transfer,
-            args=(receiver_ip_addr, receiver_port, chunk_start, chunk_end),
-        )
+        transfer_thread = threading.Thread(target=self._send_file_transfer,
+                                           args=(receiver_ip_addr, receiver_port, chunk_start, chunk_end))
         transfer_thread.start()
 
-    def _send_file_transfer(
-        self, receiver_ip_addr, receiver_port, chunk_start, chunk_end
-    ):
-        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        sock.connect((receiver_ip_addr, receiver_port))
+    def _send_file_transfer(self, receiver_ip_addr, receiver_port, chunk_start, chunk_end):
+        data_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        data_sock.connect((receiver_ip_addr, receiver_port))
 
         try:
-            # Read and send the specified chunks
-            with open(
-                self.file_info.filepath, "rb"
-            ) as file:  # 'rb' -> reading in Binary mode
-                chunk = Chunk(file, True, True, False)
+            with open(self.file_info.filepath, "rb") as file:
                 for chunk_index in range(chunk_start, chunk_end):
-                    # Seek to the start of the current chunk
-                    chunk.seek(chunk_index)
+                    file.seek(chunk_index * self.file_info.CHUNK_SIZE)
 
-                    # Read the chunk from the file
-                    chunk_data = chunk.read()
+                    chunk_data = file.read(self.file_info.CHUNK_SIZE)
 
-                    # Send the chunk to the receiver
                     with self.mutex:
-                        sock.sendall(chunk.getsize())
-                        sock.sendall(chunk_data)
+                        data_sock.sendall(chunk_data)
+
         finally:
-            # Close the socket
-            sock.close()
+            data_sock.close()
+
+    def inform_tracker(self, tracker_ip, tracker_port):
+        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        sock.connect((tracker_ip, tracker_port))
+
+        sock.send(self.file_info.identifier)
+
+
 
     def request_file(
-        self,
-        destination_filepath,
-        sender_ip_addr,
-        sender_port,
-        chunk_start,
-        chunk_end,
-        file_identifier,
+        self, destination_filepath, chunk_start, chunk_end
     ):
-        transfer_thread = threading.Thread(
-            target=_request_file_transfer,
-            args=(
-                destination_filepath,
-                sender_ip_addr,
-                sender_port,
-                chunk_start,
-                chunk_end,
-                file_identifier,
-            ),
-        )
+        transfer_thread = threading.Thread(target=self._request_file_transfer,
+                                           args=(destination_filepath, chunk_start, chunk_end))
         transfer_thread.start()
 
     def _request_file_transfer(
-        destination_filepath,
-        sender_ip_addr,
-        sender_port,
-        chunk_start,
-        chunk_end,
-        file_identifier,
+            self, destination_filepath, chunk_start, chunk_end
     ):
-        # Open a socket connection to the sender
-        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
-            # Connect to the sender's IP address and port
+        data_listener = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        data_listener.bind((self.ip_addr, self.port))
+        data_listener.listen()
+
+        data_sock, _ = data_listener.accept()
+
+        try:
+            """
             sock.connect((sender_ip_addr, sender_port))
 
-            # Send the file request to the sender
             request = {
                 "file_identifier": file_identifier,
                 "chunk_start": chunk_start,
                 "chunk_end": chunk_end,
                 "receiver_ip_addr": sender_ip_addr,
-                "receiver_port": sender_port,
+                "receiver_port": sender_port
             }
             request_json = json.dumps(request)
             sock.sendall(request_json.encode())
+            """
+            file_offset = chunk_start * self.file_info.CHUNK_SIZE
 
-        # Create/open the destination file to write the received data
-        file_offset = chunk_start * 4
+            with open(destination_filepath, "w+b") as requested_file:
+                requested_file.seek(file_offset)
+                
+                while True:
+                    chunk_data = data_sock.recv(self.file_info.CHUNK_SIZE)
+                    if not chunk_data:
+                        break
 
-        with open(
-            destination_filepath, "r+b"
-        ) as requested_file:  # reading & writing in Binary mode
-            # Seek to the correct position in the file based on the file offset
-            requested_file.seek(file_offset)
-            # Receive and write the requested chunks to the destination file
-            while True:
-                chunk_size_byte = sock.recv(4)
-                if not chunk_size_byte:
-                    break
-                chunk_size = int.from_bytes(chunk_size_byte, byteorder="big")
-
-                chunk_data = sock.recv(chunk_size)
-                if not chunk_data:
-                    break
-                with self.mutex:
-                    requested_file.write(chunk_data)
+                    with self.mutex:
+                        requested_file.write(chunk_data)
+        finally:
+            data_sock.close()
+            data_listener.close()
 
 
 if __name__ == "__main__":
-    pass
+
+    # Get the current script's directory
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+
+    # Get the parent directory
+    parent_dir = os.path.dirname(script_dir)
+
+    # Set the filename and file path
+    filename = "sender_test_file.txt"
+    sending_path = os.path.join(script_dir, filename)
+    destination_filename = "receiver_test_file.txt"
+    destination_path =  os.path.join(parent_dir, destination_filename)
+
+     # Create file info object
+    file = File()
+    file.read_file(sending_path)
+
+   # Create sender and receiver instances
+    sender = FileServer(ServerMode.SENDER, file, "172.29.146.44", 4001)  
+    receiver = FileServer(ServerMode.RECEIVER, file, "172.29.146.44", 4001)  
+
+    # Requesting file from sender by receiver
+    receiver.request_file(destination_path, 1, 6)
+    
+    # Sending file from sender to receiver
+    sender.send_file(receiver.ip_addr, receiver.port, 1, 6)
