@@ -57,23 +57,24 @@ class ClientConnection(threading.Thread):
         super(ClientConnection, self).__init__()
         self.network = network
         self.client_connection_socket = client_socket
-        self.client_host = host
+        self.client_name = None
+        self.client_ip = host
         self.client_port = port
         self.client_id = str(uuid.uuid4())
         self.stop_flag = False
 
     def get_host_and_port(self):
-        return (self.client_host, int(self.client_port))
+        return (self.client_ip, int(self.client_port))
 
     def get_client_id(self):
         return self.client_id
 
-    def send_message(self, api_key, message, status=300):
+    def send_message(self, api_key, message, status=200):
         """Send a message to client"""
         assert api_key is not None
         data = {
             "api_key": api_key,
-            "status": status,
+            "status_code": status,
             "value": message,
         }
         self.client_connection_socket.send(json.dumps(data).encode())
@@ -83,7 +84,7 @@ class ClientConnection(threading.Thread):
         assert api_key is not None
         data = {
             "api_key": api_key,
-            "status": str(error_code),
+            "status_code": str(error_code),
             "value": error_message,
         }
         self.client_connection_socket.send(json.dumps(data).encode())
@@ -110,9 +111,11 @@ class ClientConnection(threading.Thread):
         for p in self.network.get_all_client_connections():
             host, port = p.get_host_and_port()
             client_id = p.get_client_id()
+            client_name = p.client_name
             peer_list.append(
                 {
                     "id": client_id,
+                    "name": client_name,
                     "ip": host,
                     "port": port,
                 }
@@ -138,10 +141,10 @@ class ClientConnection(threading.Thread):
 
                 if api_key == "CONNECT":
                     self.client_id = str(uuid.uuid4())
-                    self.client_host = value["ip"]
-                    self.client_port = value[
-                        "port"
-                    ]  # To avoid TCP outgoing port selection
+                    self.client_name = value["name"]
+                    self.client_ip = value["ip"]
+                    self.client_port = value["port"]
+                    # To avoid TCP outgoing port selection
                     success = self.network.client_join_attempt(self)
                     if not success:
                         response = self.send_error_message(
@@ -149,7 +152,11 @@ class ClientConnection(threading.Thread):
                         )
                     else:
                         response = self.send_message(
-                            api_key="CONNECT", message=self.get_client_id()
+                            api_key="CONNECT",
+                            message={
+                                "network_name": "myNet",
+                                "client_id": self.get_client_id(),
+                            },
                         )
 
                 elif api_key == "LIST_PEERS":
