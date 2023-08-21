@@ -5,13 +5,17 @@ from .cli import CLI
 
 
 class PeerConnection(threading.Thread):
-    def __init__(self, id=None, name=None, ip=None, port=None, peer_socket=None):
+    def __init__(
+        self, id=None, name=None, ip=None, port=None, peer_socket=None, cli=None
+    ):
+        assert cli is not None
         super(PeerConnection, self).__init__()
         self.id = id
         self.name = name
         self.ip = ip
         self.port = port
         self.peer_socket = peer_socket
+        self.cli = cli
         self.termination_flag = False
 
     def establish(self, id, name, ip, port):
@@ -54,7 +58,7 @@ class PeerConnection(threading.Thread):
 
     def receive_message(self, received):
         message = received["value"]["message"]
-        CLI().add_body_text("[{}] {}".format(self.name, message))
+        self.cli.add_body_text("[{}] {}".format(self.name, message))
 
     def close(self):
         self.termination_flag = True
@@ -68,11 +72,13 @@ class PeerConnection(threading.Thread):
 
 
 class ClientNode(threading.Thread):
-    def __init__(self, id, name, port):
+    def __init__(self, id, name, port, cli=None):
+        assert cli is not None
         super(ClientNode, self).__init__()
         self.name = name
         self.id = id
         self.port = port
+        self.cli = cli
         self.connection_list = []
         # Client server socket
         ip, port = (utils.local_ip_address(), self.port)
@@ -84,7 +90,7 @@ class ClientNode(threading.Thread):
         self.termination_flag = False
 
     def connect(self, peer_id, peer_name, peer_ip, peer_port):
-        peer_conn = PeerConnection()
+        peer_conn = PeerConnection(cli=self.cli)
         peer_conn.establish(id=peer_id, name=peer_name, ip=peer_ip, port=peer_port)
         peer_conn.daemon = True
         peer_conn.start()
@@ -107,29 +113,27 @@ class ClientNode(threading.Thread):
 
     def run(self):
         while not self.termination_flag:
-            try:
-                # Accept incoming connection request
-                socket, _ = self.server_socket.accept()
-                res = utils.json_decode(socket.recv(1024))
-                p = res["value"]
-                peer_conn = PeerConnection(
-                    id=p["id"],
-                    name=p["name"],
-                    ip=p["ip"],
-                    port=["port"],
-                    peer_socket=socket,
+            # Accept incoming connection request
+            socket, _ = self.server_socket.accept()
+            res = utils.json_decode(socket.recv(1024))
+            p = res["value"]
+            peer_conn = PeerConnection(
+                id=p["id"],
+                name=p["name"],
+                ip=p["ip"],
+                port=p["port"],
+                cli=self.cli,
+                peer_socket=socket,
+            )
+            peer_conn.daemon = True
+            peer_conn.start()
+            socket.send(
+                utils.json_encode(
+                    {
+                        "api_key": "CONNECT",
+                        "status_code": 200,
+                    }
                 )
-                peer_conn.daemon = True
-                peer_conn.start()
-                socket.send(
-                    utils.json_encode(
-                        {
-                            "api_key": "CONNECT",
-                            "status_code": 200,
-                        }
-                    )
-                )
-                self.connection_list.append(peer_conn)
-                CLI().add_body_text("{} joined the network".format(p["name"]))
-            except:
-                pass
+            )
+            self.connection_list.append(peer_conn)
+            self.cli.add_body_text("{} joined the network".format(p["name"]))

@@ -1,16 +1,8 @@
 import os
 import uuid
-from threading import Lock, Thread
 
 
 class CLI:
-    def __call__(cls, *args, **kwargs):
-        with cls._lock:
-            if cls not in cls._instances:
-                instance = super().__call__(*args, **kwargs)
-                cls._instances[cls] = instance
-        return cls._instances[cls]
-
     def __init__(self):
         self.message_chunk_file_name = "message-" + str(uuid.uuid4())
         self.message_chunk_location = os.path.join(
@@ -122,23 +114,3 @@ class CLI:
         if self.command_info != "":
             print(self.command_info)
         print(self.command_prompt, end="")
-
-
-if __name__ == "__main__":
-    cli = CLI()
-    cli.add_header_text("PituPiPy")
-    cli.add_header_text("Chat and File Transfer in P2P network")
-    cli.add_header_text("Client Info:")
-    cli.add_header_text("James, ip:127.0.1.1, port:3001")
-
-    cli.set_network_status_text("Network Connected: [MyNet_1] ip:127.0.1.1, port:3500")
-    cli.set_command_info("Invalid Command.")
-
-    cli.add_body_text("[Micheal] Hello.")
-    cli.add_body_text("[Micheal] Hello.")
-    cli.add_body_text("[Micheal] Hello.")
-    cli.add_body_text("[Micheal] Hello.")
-    cli.add_body_text("[Micheal] Hello.")
-
-    cmd = cli.input()
-    print("input given: ", cmd)

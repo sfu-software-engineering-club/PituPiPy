@@ -13,7 +13,9 @@ class Network:
         def connection_failure(message=""):
             raise Network.NetworkException(message)
 
-    def __init__(self):
+    def __init__(self, cli=None):
+        assert cli is not None
+        self.cli = cli
         self.network_name = None
         self.tracker_ip = None
         self.tracker_port = None
@@ -50,7 +52,7 @@ class Network:
 
             res = self.api_request({"api_key": "LIST_PEERS"})
             self.client_connection = ClientNode(
-                id=self.client_id, name=client_name, port=client_port
+                id=self.client_id, name=client_name, port=client_port, cli=self.cli
             )
             self.client_connection.daemon = True
             self.client_connection.start()
@@ -120,7 +122,7 @@ class Client:
         self.ip = utils.local_ip_address()
         self.port = None
         self.cli = CLI()
-        self.network = Network()
+        self.network = Network(cli=self.cli)
         # Flags
         self.termination_flag = False
 
