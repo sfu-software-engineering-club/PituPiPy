@@ -8,6 +8,15 @@ if __name__ == "__main__":
     chosen = False
     selection = 0
 
+    """
+    client = Client()
+    client.listen(port)
+    """
+    """
+    tracker = Tracker(port)
+    tracker.start()
+    """
+
     def on_release(key):
         global chosen
         global selection
