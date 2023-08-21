@@ -3,7 +3,7 @@ from client.client import Client
 
 if __name__ == "__main__":
     client = Client()
-    client.listen(3001)
+    client.listen(3000)
 
     """
         argv = sys.argv[1:]
