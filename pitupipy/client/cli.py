@@ -1,5 +1,6 @@
 import os
 import uuid
+import utils
 
 
 class CLI:
@@ -75,42 +76,26 @@ class CLI:
     """
 
     def cli_render(self):
-        os.system("cls" if os.name == "nt" else "clear")
-        rows, columns = os.popen("stty size", "r").read().split()
-
-        draw_border = lambda: print(("{0:─^" + columns + "}").format(""))
-        draw_empty_line = lambda: print(
-            "│" + ("{0:^" + str(int(columns) - 2) + "}").format("") + "│"
-        )
-        draw_text = lambda text: print(
-            "│"
-            + text
-            + ("{0:^" + str(int(columns) - 2 - len(text)) + "}").format("")
-            + "│"
-        )
-        draw_text_center = lambda text: print(
-            "│" + ("{0:^" + str(int(columns) - 2) + "}").format(text) + "│"
-        )
-
+        utils.clear_window()
         # CLI Header
-        draw_border()
+        utils.draw_line()
         for h in self.header_texts:
-            draw_text_center(h)
+            utils.draw_center_text(h)
         # CLI Body
-        draw_border()
-        draw_text(self.network_status_text)
-        draw_border()
+        utils.draw_line()
+        utils.draw_left_text(self.network_status_text)
+        utils.draw_line()
         if len(self.body_texts) < self.MAX_BODY_LENGTH:
             for p in self.body_texts:
-                draw_text(p)
+                utils.draw_left_text(p)
         else:
             for p in self.body_texts[
                 len(self.body_texts) - self.MAX_BODY_LENGTH : len(self.body_texts)
             ]:
-                draw_text(p)
-        draw_empty_line()
+                utils.draw_left_text(p)
+        utils.draw_left_text("")
         # CLI Input
-        draw_border()
+        utils.draw_line()
         if self.command_info != "":
             print(self.command_info)
         print(self.command_prompt, end="")

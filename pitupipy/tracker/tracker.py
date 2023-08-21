@@ -1,7 +1,7 @@
 import sys
 import getopt
 import socket
-from tracker_api import TrackerApi
+from .tracker_api import TrackerApi
 
 
 class TrackerProfile:

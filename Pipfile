@@ -9,6 +9,7 @@ black = "*"
 pre-commit = "*"
 pytest = "*"
 mock = "*"
+pynput = "*"
 
 [dev-packages]
 
