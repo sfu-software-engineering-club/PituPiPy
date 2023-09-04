@@ -137,8 +137,8 @@ if __name__ == "__main__":
     file.read_file(sending_path)
 
     # Create sender and receiver instances
-    sender = FileServer(ServerMode.SENDER, file, "172.29.146.44", 4001)
-    receiver = FileServer(ServerMode.RECEIVER, file, "172.29.146.44", 4001)
+    sender = FileServer(ServerMode.SENDER, file, "10.0.2.15", 4001)
+    receiver = FileServer(ServerMode.RECEIVER, file, "10.0.2.15", 4001)
 
     # Requesting file from sender by receiver
     receiver.request_file(destination_path, 1, 6)

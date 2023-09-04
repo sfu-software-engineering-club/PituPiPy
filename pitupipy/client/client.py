@@ -5,6 +5,7 @@ import json
 import utils
 from .client_node import ClientNode
 from .cli import CLI
+from tkinter import filedialog
 
 
 class Network:
@@ -93,6 +94,21 @@ class Network:
             return self.client_connection.get_name_by_id(peer_id)
         except Exception as e:
             raise Network.NetworkException(e)
+        
+    def upload_file(self, file_path):
+        try:
+            res = self.api_request(
+                {
+                    "api_key": "FILE_UPLOAD",
+                    "value": {
+                        "file_path": file_path
+                    },
+                }
+            )
+
+            except Exception as e:
+            raise Network.NetworkException(e)
+
 
     def is_network_alive(self):
         return self.is_alive
@@ -174,6 +190,8 @@ class Client:
                 elif len(args) == 1:
                     self.cli.set_command_info("No message provided for whispering.")
                 self.cmd_send_private_message(opponent_id=args[0], message=args[1])
+            elif cmd == "upload_file":
+                self.cmd_upload_file()
             else:
                 self.cli.set_command_info("Invalid command.")
 
@@ -255,6 +273,16 @@ class Client:
         if self.network.is_network_alive():
             self.network.close()
         sys.exit()
+    
+    def cmd_upload_file(self):
+        if self.network.is_network_alive() is False:
+            self.cli.set_command_info("You have not connected to a network.")
+        else:
+            root = tkinter.Tk()
+            root.withdraw()
+            file_path = filedialog.askopenfilename()
+            self.network.upload_file(file_path)
+        
 
     def __del__(self):
         self.cmd_shutdown()

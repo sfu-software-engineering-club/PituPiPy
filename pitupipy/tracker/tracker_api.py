@@ -3,13 +3,14 @@ import threading
 import uuid
 import json
 import traceback
-
+from ..client.file_server.file_server import File
 
 class Network:
     def __init__(self, network_capacity=20) -> None:
         assert type(network_capacity) is int
         self.capacity = network_capacity
         self.client_connections = []
+        self.files = []
 
     def get_network_capacity(self):
         return self.capacity
@@ -19,6 +20,12 @@ class Network:
         self.client_connections.append(client_connection)
         print(
             "Network participants: ", len(self.client_connections), " / ", self.capacity
+        )
+
+    def add_file_to_network(self, file):
+        self.files.append(file)
+        print(
+            "File Added"
         )
 
     def remove_client_from_network(self, client_connection):
@@ -122,6 +129,9 @@ class ClientConnection(threading.Thread):
             )
         return peer_list
 
+    def file_list(self):
+        file_list = []
+
     def close(self):
         self.client_connection_socket.close()
         self.stop_flag = True
@@ -168,6 +178,15 @@ class ClientConnection(threading.Thread):
                 elif api_key == "HEALTH_CHECK":
                     response = self.send_message(api_key="HEALTH_CHECK", message="ok")
 
+                elif api_key == "FILE_UPLOAD":
+                    file_path = value["path"]
+                    file_size = value["size"]
+                    file_chunks = value["chunks"]
+                    file_owner = value["owner"]
+                    self.network.add_file_to_network(file_path,file_size,file_chunks,file_owner)
+                    response = self.send_message(api_key="FILE_UPLOAD", message="file uploaded")
+
+
                 elif api_key == "QUIT":
                     self.network.remove_client_from_network(self)
                     response = self.send_message(api_key="QUIT", message="ok")
@@ -182,7 +201,6 @@ class ClientConnection(threading.Thread):
                 traceback.print_exc()
                 return
 
-
 class TrackerApi:
     def __init__(self, profile):
         assert profile is not None
@@ -191,6 +209,7 @@ class TrackerApi:
         self.network = Network(profile.get_network_capacity())
         self.server_socket = self.create_server_socket()
         self.client_connections = []
+        self.file_connections = []
 
     def create_server_socket(self):
         ip, port = self.profile.get_host_and_port()
@@ -217,6 +236,16 @@ class TrackerApi:
         client_connection.daemon = True
         client_connection.start()
         return client_connection
+
+    def update_new_file_connection(self, file_path, file_size, file_chunks, uploader_id, file_id):
+        new_file = File()
+        new_file.filepath = file_path
+        new_file.file_size = file_size
+        new_file.number_of_chunks = file_chunks
+        new_file.owner = uploader_id
+        new_file.identifier = file_id
+        self.file_connections.append(new_file)
+        
 
     def __del__(self):
         for c in self.client_connections:
