@@ -19,6 +19,7 @@ class File:
         self.file_size = 0
         self.number_of_chunks = 0
         self.CHUNK_SIZE = CHUNK_SIZE
+        self.owner_list = []
 
     def read_file(self, file_path):
         self.filepath = file_path
@@ -33,7 +34,13 @@ class File:
         self.file_size = chunk_count * self.CHUNK_SIZE
         self.number_of_chunks = chunk_count
 
+    def add_owner(self, owner_id):
+        if owner_id not in self.owner_list:
+            self.owner_list.append(owner_id)
 
+    def get_owners(self):
+        return self.owner_list
+        
 class FileServer:
     def __init__(self, mode: ServerMode, file_info: File, ip_addr, port):
         self.mode = mode
@@ -67,12 +74,6 @@ class FileServer:
 
         finally:
             data_sock.close()
-
-    def inform_tracker(self, tracker_ip, tracker_port):
-        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        sock.connect((tracker_ip, tracker_port))
-
-        sock.send(self.file_info.identifier)
 
     def request_file(self, destination_filepath, chunk_start, chunk_end):
         transfer_thread = threading.Thread(

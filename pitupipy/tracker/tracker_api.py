@@ -1,16 +1,18 @@
+import os
+import sys
+sys.path.append(os.path.dirname(os.path.abspath(os.path.dirname(__file__))))
 import socket
 import threading
 import uuid
 import json
 import traceback
-from ..client.file_server.file_server import File
+from client.file_server.file_server import File
 
 class Network:
     def __init__(self, network_capacity=20) -> None:
         assert type(network_capacity) is int
         self.capacity = network_capacity
         self.client_connections = []
-        self.files = []
 
     def get_network_capacity(self):
         return self.capacity
@@ -20,12 +22,6 @@ class Network:
         self.client_connections.append(client_connection)
         print(
             "Network participants: ", len(self.client_connections), " / ", self.capacity
-        )
-
-    def add_file_to_network(self, file):
-        self.files.append(file)
-        print(
-            "File Added"
         )
 
     def remove_client_from_network(self, client_connection):
@@ -60,7 +56,7 @@ class Network:
 
 
 class ClientConnection(threading.Thread):
-    def __init__(self, network, client_socket, host, port):
+    def __init__(self, network, client_socket, host, port, file_manager):
         super(ClientConnection, self).__init__()
         self.network = network
         self.client_connection_socket = client_socket
@@ -69,6 +65,7 @@ class ClientConnection(threading.Thread):
         self.client_port = port
         self.client_id = str(uuid.uuid4())
         self.stop_flag = False
+        self.file_manager = file_manager
 
     def get_host_and_port(self):
         return (self.client_ip, int(self.client_port))
@@ -128,10 +125,22 @@ class ClientConnection(threading.Thread):
                 }
             )
         return peer_list
-
-    def file_list(self):
-        file_list = []
-
+    
+    def transform_file_list_id_to_name(self, id_file_list):
+        peer_list = self.peer_list()
+        id_to_name = {peer['id']: peer['name'] for peer in peer_list}
+    
+        name_file_list = []
+        for file_info in id_file_list:
+            transformed_owners = [id_to_name[owner_id] for owner_id in file_info['owners']]
+            transformed_info = {
+                "id": file_info["id"],
+                "owners": transformed_owners,
+            }
+            name_file_list.append(transformed_info)
+        
+        return name_file_list
+    
     def close(self):
         self.client_connection_socket.close()
         self.stop_flag = True
@@ -182,10 +191,21 @@ class ClientConnection(threading.Thread):
                     file_path = value["path"]
                     file_size = value["size"]
                     file_chunks = value["chunks"]
-                    file_owner = value["owner"]
-                    self.network.add_file_to_network(file_path,file_size,file_chunks,file_owner)
-                    response = self.send_message(api_key="FILE_UPLOAD", message="file uploaded")
-
+                    owner_id = value["owner"]
+                    file_id = self.file_manager.upload_new_file(file_path, file_size, file_chunks, owner_id)
+                    response = self.send_message(
+                        api_key="FILE_UPLOAD", 
+                        message={
+                            "file_id": file_id
+                        },
+                    )
+                
+                elif api_key == "FILE_LIST":
+                    id_file_list = self.file_manager.get_file_list()
+                    name_file_list = self.transform_file_list_id_to_name(id_file_list)
+                    response = self.send_message(
+                        api_key="FILE_LIST", message=name_file_list
+                    )
 
                 elif api_key == "QUIT":
                     self.network.remove_client_from_network(self)
@@ -201,6 +221,37 @@ class ClientConnection(threading.Thread):
                 traceback.print_exc()
                 return
 
+class FileManager:
+    def __init__(self):
+        self.file_info = {}
+
+    def upload_new_file(self, file_path, file_size, chunks, owner_id):
+        new_file = File()
+        new_file.filepath = file_path
+        new_file.file_size = file_size
+        new_file.number_of_chunks = chunks
+        new_file.add_owner(owner_id)
+        file_id = str(uuid.uuid4())
+        new_file.identifier = file_id
+
+        self.file_info[file_id] = new_file
+        return file_id
+
+    def get_file_info(self, file_id):
+        return self.file_info.get(file_id, None)
+    
+    def get_file_list(self):
+        file_list = []
+        for file_id, file_instance in self.file_info.items():
+            owners = file_instance.get_owners()
+            file_info = {
+                "id": file_id,
+                "owners": owners,
+            }
+            file_list.append(file_info)
+        return file_list
+
+
 class TrackerApi:
     def __init__(self, profile):
         assert profile is not None
@@ -209,7 +260,7 @@ class TrackerApi:
         self.network = Network(profile.get_network_capacity())
         self.server_socket = self.create_server_socket()
         self.client_connections = []
-        self.file_connections = []
+        self.file_manager = FileManager()
 
     def create_server_socket(self):
         ip, port = self.profile.get_host_and_port()
@@ -231,21 +282,11 @@ class TrackerApi:
 
     def create_new_client_connection(self, client_socket, host, port=None):
         client_connection = ClientConnection(
-            self.network, client_socket, host, port=None
+            self.network, client_socket, host, port=None, file_manager=self.file_manager
         )
         client_connection.daemon = True
         client_connection.start()
         return client_connection
-
-    def update_new_file_connection(self, file_path, file_size, file_chunks, uploader_id, file_id):
-        new_file = File()
-        new_file.filepath = file_path
-        new_file.file_size = file_size
-        new_file.number_of_chunks = file_chunks
-        new_file.owner = uploader_id
-        new_file.identifier = file_id
-        self.file_connections.append(new_file)
-        
 
     def __del__(self):
         for c in self.client_connections:
