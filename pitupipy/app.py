@@ -41,7 +41,7 @@ if __name__ == "__main__":
             utils.draw_center_text("▷  " + "Host a Network.".ljust(16))
             utils.draw_center_text("▶  " + "Join a Network.".ljust(16))
         utils.draw_line()
-        utils.draw_center_text("By SFU SDC")
+        utils.draw_center_text("By SFU SwSO")
         with keyboard.Listener(
             on_press=lambda k: None, on_release=on_release
         ) as listener:

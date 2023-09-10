@@ -22,7 +22,7 @@ class CLI:
         self.reset_command_prompt()
 
         # CLI Properties
-        self.MAX_BODY_LENGTH = 5
+        self.MAX_BODY_LENGTH = 10
 
     """
     CLI Methods

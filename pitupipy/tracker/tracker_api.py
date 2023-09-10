@@ -1,5 +1,6 @@
 import os
 import sys
+
 sys.path.append(os.path.dirname(os.path.abspath(os.path.dirname(__file__))))
 import socket
 import threading
@@ -7,6 +8,7 @@ import uuid
 import json
 import traceback
 from client.file_server.file_server import File
+
 
 class Network:
     def __init__(self, network_capacity=20) -> None:
@@ -24,8 +26,19 @@ class Network:
             "Network participants: ", len(self.client_connections), " / ", self.capacity
         )
 
-    def remove_client_from_network(self, client_connection):
-        pass
+    def remove_client_from_network(self, exit_client_connection):
+        print(
+            "A client quitted from the network {}, {}, {}".format(
+                exit_client_connection.client_name,
+                exit_client_connection.client_id,
+                exit_client_connection.client_ip,
+            )
+        )
+        new_conns = []
+        for client_conn in self.client_connections:
+            if client_conn.get_client_id() != exit_client_connection.get_client_id():
+                new_conns.append(client_conn)
+        self.client_connections = new_conns
 
     def client_join_attempt(self, client_connection):
         """
@@ -108,6 +121,8 @@ class ClientConnection(threading.Thread):
 
     def receive_message(self):
         res = self.client_connection_socket.recv(1024).decode("utf-8")
+        if not res:
+            return None
         return json.loads(res)
 
     def peer_list(self):
@@ -125,101 +140,113 @@ class ClientConnection(threading.Thread):
                 }
             )
         return peer_list
-    
+
     def transform_file_list_id_to_name(self, id_file_list):
         peer_list = self.peer_list()
-        id_to_name = {peer['id']: peer['name'] for peer in peer_list}
-    
+        id_to_name = {peer["id"]: peer["name"] for peer in peer_list}
+
         name_file_list = []
         for file_info in id_file_list:
-            transformed_owners = [id_to_name[owner_id] for owner_id in file_info['owners']]
+            transformed_owners = [
+                id_to_name[owner_id] for owner_id in file_info["owners"]
+            ]
             transformed_info = {
                 "id": file_info["id"],
                 "owners": transformed_owners,
             }
             name_file_list.append(transformed_info)
-        
+
         return name_file_list
-    
-    def close(self):
-        self.client_connection_socket.close()
-        self.stop_flag = True
 
     def run(self):
         while not self.stop_flag:
             received = self.receive_message()
-            print("\nData received: ", received)
-            try:
-                assert "api_key" in received
-            except Exception as e:
-                self.send_invalid_request()
-            try:
-                api_key = received["api_key"]
-                value = received["value"] if "value" in received else None
-                response = None
+            if received == None:
+                self.close_connection()
 
-                if api_key == "CONNECT":
-                    self.client_id = str(uuid.uuid4())
-                    self.client_name = value["name"]
-                    self.client_ip = value["ip"]
-                    self.client_port = value["port"]
-                    # To avoid TCP outgoing port selection
-                    success = self.network.client_join_attempt(self)
-                    if not success:
-                        response = self.send_error_message(
-                            api_key="CONNECT", error_message="Network is full"
-                        )
-                    else:
-                        response = self.send_message(
-                            api_key="CONNECT",
-                            message={
-                                "network_name": "myNet",
-                                "client_id": self.get_client_id(),
-                            },
-                        )
-
-                elif api_key == "LIST_PEERS":
-                    peer_list = self.peer_list()
-                    response = self.send_message(
-                        api_key="LIST_PEERS", message=peer_list
-                    )
-
-                elif api_key == "HEALTH_CHECK":
-                    response = self.send_message(api_key="HEALTH_CHECK", message="ok")
-
-                elif api_key == "FILE_UPLOAD":
-                    file_path = value["path"]
-                    file_size = value["size"]
-                    file_chunks = value["chunks"]
-                    owner_id = value["owner"]
-                    file_id = self.file_manager.upload_new_file(file_path, file_size, file_chunks, owner_id)
-                    response = self.send_message(
-                        api_key="FILE_UPLOAD", 
-                        message={
-                            "file_id": file_id
-                        },
-                    )
-                
-                elif api_key == "FILE_LIST":
-                    id_file_list = self.file_manager.get_file_list()
-                    name_file_list = self.transform_file_list_id_to_name(id_file_list)
-                    response = self.send_message(
-                        api_key="FILE_LIST", message=name_file_list
-                    )
-
-                elif api_key == "QUIT":
-                    self.network.remove_client_from_network(self)
-                    response = self.send_message(api_key="QUIT", message="ok")
-
-                else:
+            else:
+                print("\nData received: ", received)
+                try:
+                    assert "api_key" in received
+                except Exception as e:
                     self.send_invalid_request()
+                try:
+                    api_key = received["api_key"]
+                    value = received["value"] if "value" in received else None
+                    response = None
 
-                print("Response: ", response)
+                    if api_key == "CONNECT":
+                        self.client_id = str(uuid.uuid4())
+                        self.client_name = value["name"]
+                        self.client_ip = value["ip"]
+                        self.client_port = value["port"]
+                        # To avoid TCP outgoing port selection
+                        success = self.network.client_join_attempt(self)
+                        if not success:
+                            response = self.send_error_message(
+                                api_key="CONNECT", error_message="Network is full"
+                            )
+                        else:
+                            response = self.send_message(
+                                api_key="CONNECT",
+                                message={
+                                    "network_name": "myNet",
+                                    "client_id": self.get_client_id(),
+                                },
+                            )
 
-            except Exception as e:
-                self.send_server_error()
-                traceback.print_exc()
-                return
+                    elif api_key == "LIST_PEERS":
+                        peer_list = self.peer_list()
+                        response = self.send_message(
+                            api_key="LIST_PEERS", message=peer_list
+                        )
+
+                    elif api_key == "HEALTH_CHECK":
+                        response = self.send_message(
+                            api_key="HEALTH_CHECK", message="ok"
+                        )
+
+                    elif api_key == "FILE_UPLOAD":
+                        file_path = value["path"]
+                        file_size = value["size"]
+                        file_chunks = value["chunks"]
+                        owner_id = value["owner"]
+                        file_id = self.file_manager.upload_new_file(
+                            file_path, file_size, file_chunks, owner_id
+                        )
+                        response = self.send_message(
+                            api_key="FILE_UPLOAD",
+                            message={"file_id": file_id},
+                        )
+
+                    elif api_key == "FILE_LIST":
+                        id_file_list = self.file_manager.get_file_list()
+                        name_file_list = self.transform_file_list_id_to_name(
+                            id_file_list
+                        )
+                        response = self.send_message(
+                            api_key="FILE_LIST", message=name_file_list
+                        )
+
+                    elif api_key == "QUIT":
+                        self.network.remove_client_from_network(self)
+                        response = self.send_message(api_key="QUIT", message="ok")
+
+                    else:
+                        self.send_invalid_request()
+
+                    print("Response: ", response)
+
+                except Exception as e:
+                    self.send_server_error()
+                    traceback.print_exc()
+                    return
+
+    def close_connection(self):
+        self.network.remove_client_from_network(self)
+        self.client_connection_socket.close()
+        self.stop_flag = True
+
 
 class FileManager:
     def __init__(self):
@@ -239,7 +266,7 @@ class FileManager:
 
     def get_file_info(self, file_id):
         return self.file_info.get(file_id, None)
-    
+
     def get_file_list(self):
         file_list = []
         for file_id, file_instance in self.file_info.items():

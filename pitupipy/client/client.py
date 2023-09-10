@@ -26,7 +26,7 @@ class Network:
         self.client_name = None
         self.client_port = None
         self.conn_socket = None
-        self.client_connection = None 
+        self.client_connection = None
         self.is_alive = False
         self.file_possession = {}
 
@@ -97,13 +97,13 @@ class Network:
             return self.client_connection.get_name_by_id(peer_id)
         except Exception as e:
             raise Network.NetworkException(e)
-        
+
     def upload_file(self, file_path, file_name):
         try:
             file = File()
             file.read_file(file_path)
             size = file.file_size
-            chunks = file.number_of_chunks            
+            chunks = file.number_of_chunks
             res = self.api_request(
                 {
                     "api_key": "FILE_UPLOAD",
@@ -111,7 +111,7 @@ class Network:
                         "path": file_path,
                         "size": size,
                         "chunks": chunks,
-                        "owner": self.client_id
+                        "owner": self.client_id,
                     },
                 }
             )
@@ -119,17 +119,17 @@ class Network:
             self.file_possession[file.identifier] = file_name
 
             return file.identifier
-        
+
         except Exception as e:
             raise Network.NetworkException(e)
-    
+
     def get_file_list(self):
         assert isinstance(self.conn_socket, socket.socket)
         res = self.api_request({"api_key": "FILE_LIST"})
         file_list = res["value"]
         updated_file_list = self.update_name_file_list(file_list)
         return updated_file_list
-        
+
     def update_name_file_list(self, file_list):
         updated_file_list = []
         for file_info in file_list:
@@ -178,9 +178,12 @@ class Client:
         self.cli.add_header_text("Chat and File Transfer in P2P network")
         self.cli.set_network_status_text("Not Connected.")
 
-        while self.termination_flag is False:
-            input = self.cli.input()
-            self.execute_cmd(input)
+        try:
+            while self.termination_flag is False:
+                input = self.cli.input()
+                self.execute_cmd(input)
+        except KeyboardInterrupt:
+            self.cmd_shutdown()
 
     """
     Client Commands
@@ -306,10 +309,11 @@ class Client:
             self.cli.set_network_status_text("Not Connected.")
 
     def cmd_shutdown(self):
+        print("shutting down...")
         if self.network.is_network_alive():
             self.network.close()
         sys.exit()
-    
+
     def cmd_upload_file(self, file_name):
         if self.network.is_network_alive() is False:
             self.cli.set_command_info("You have not connected to a network.")
@@ -321,7 +325,9 @@ class Client:
 
             upload_msg = "UPLOAD " + file_name + " (ID: " + file_id + ")"
             self.network.broadcast_message(upload_msg)
-            self.cli.add_body_text("[{}] {}".format(self.network.client_name, upload_msg))
+            self.cli.add_body_text(
+                "[{}] {}".format(self.network.client_name, upload_msg)
+            )
 
             info = "File uploaded: " + file_name
             self.cli.set_command_info(info)
@@ -338,7 +344,3 @@ class Client:
                 owners = file_info["owners"]
                 info += f"[{file_name}] ID: {file_id}, Owners: {', '.join(owners)}\n"
             self.cli.set_command_info(info)
-
-        
-    def __del__(self):
-        self.cmd_shutdown()
