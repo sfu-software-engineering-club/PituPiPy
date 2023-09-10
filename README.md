@@ -23,3 +23,10 @@ Press keyboard up or down to choose the program (tracker or client) to start.
 
 `COMMAND? [/q or /help] >> /help`  
 ![](./resources/commands.png)
+
+## Contributors
+Jiin [@jiin-kim109](https://github.com/jiin-kim109)  
+Jusung [@Pentaminum](https://github.com/Pentaminum)   
+Lauren [@laurenlee0307](https://github.com/)   
+Jooyoung [@jylee2033](https://github.com/jylee2033)  
+SeungHwan [@SHKim331](https://github.com/SHKim331)  
