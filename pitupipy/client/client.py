@@ -3,8 +3,11 @@ import socket
 import traceback
 import json
 import utils
+import tkinter
 from .client_node import ClientNode
 from .cli import CLI
+from tkinter import filedialog
+from .file_server.file_server import File
 
 
 class Network:
@@ -23,8 +26,9 @@ class Network:
         self.client_name = None
         self.client_port = None
         self.conn_socket = None
-        self.clinet_connection = None
+        self.client_connection = None 
         self.is_alive = False
+        self.file_possession = {}
 
     def establish_connection(self, client_name, client_port, tracker_ip, tracker_port):
         self.is_alive = False
@@ -93,6 +97,47 @@ class Network:
             return self.client_connection.get_name_by_id(peer_id)
         except Exception as e:
             raise Network.NetworkException(e)
+        
+    def upload_file(self, file_path, file_name):
+        try:
+            file = File()
+            file.read_file(file_path)
+            size = file.file_size
+            chunks = file.number_of_chunks            
+            res = self.api_request(
+                {
+                    "api_key": "FILE_UPLOAD",
+                    "value": {
+                        "path": file_path,
+                        "size": size,
+                        "chunks": chunks,
+                        "owner": self.client_id
+                    },
+                }
+            )
+            file.identifier = res["value"]["file_id"]
+            self.file_possession[file.identifier] = file_name
+
+            return file.identifier
+        
+        except Exception as e:
+            raise Network.NetworkException(e)
+    
+    def get_file_list(self):
+        assert isinstance(self.conn_socket, socket.socket)
+        res = self.api_request({"api_key": "FILE_LIST"})
+        file_list = res["value"]
+        updated_file_list = self.update_name_file_list(file_list)
+        return updated_file_list
+        
+    def update_name_file_list(self, file_list):
+        updated_file_list = []
+        for file_info in file_list:
+            file_id = file_info["id"]
+            if file_id in self.file_possession:
+                file_info["name"] = self.file_possession[file_id]
+            updated_file_list.append(file_info)
+        return updated_file_list
 
     def is_network_alive(self):
         return self.is_alive
@@ -174,6 +219,13 @@ class Client:
                 elif len(args) == 1:
                     self.cli.set_command_info("No message provided for whispering.")
                 self.cmd_send_private_message(opponent_id=args[0], message=args[1])
+            elif cmd == "upload_file":
+                self.cli.set_command_prompt("File name >> ")
+                fname = self.cli.input()
+                self.cmd_upload_file(fname)
+                self.cli.reset_command_prompt()
+            elif cmd == "file_status":
+                self.cmd_file_status()
             else:
                 self.cli.set_command_info("Invalid command.")
 
@@ -188,6 +240,8 @@ class Client:
             /status                         -- show the list of clients in a network
             /send_message [message]         -- send a public message to network
             /whisper [client_id] [message]  -- send a message to a single opponent client
+            /upload_file                    -- upload a file to the network
+            /file_status                    -- show the list of files in a network
             /exit                           -- exit the network
             /q or /shutdown                 -- close the program
         """
@@ -255,6 +309,36 @@ class Client:
         if self.network.is_network_alive():
             self.network.close()
         sys.exit()
+    
+    def cmd_upload_file(self, file_name):
+        if self.network.is_network_alive() is False:
+            self.cli.set_command_info("You have not connected to a network.")
+        else:
+            root = tkinter.Tk()
+            root.withdraw()
+            file_path = filedialog.askopenfilename()
+            file_id = self.network.upload_file(file_path, file_name)
 
+            upload_msg = "UPLOAD " + file_name + " (ID: " + file_id + ")"
+            self.network.broadcast_message(upload_msg)
+            self.cli.add_body_text("[{}] {}".format(self.network.client_name, upload_msg))
+
+            info = "File uploaded: " + file_name
+            self.cli.set_command_info(info)
+
+    def cmd_file_status(self):
+        if self.network.is_network_alive() is False:
+            self.cli.set_command_info("You have not connected to a network.")
+        else:
+            file_list = self.network.get_file_list()
+            info = ""
+            for file_info in file_list:
+                file_id = file_info["id"]
+                file_name = file_info["name"]
+                owners = file_info["owners"]
+                info += f"[{file_name}] ID: {file_id}, Owners: {', '.join(owners)}\n"
+            self.cli.set_command_info(info)
+
+        
     def __del__(self):
         self.cmd_shutdown()
