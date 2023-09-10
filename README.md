@@ -1,28 +1,25 @@
-## Local Testing
+# PituPiPy - P2P Chat and File Transferring
+<img src="https://img.shields.io/badge/Python-v3.10-3776AB?style=flat">  
 
+![](./resources/demo.gif)
+
+PituPiPy is a Python implementation of P2P (peer-to-peer) networking program that enables users to message and share files within in a P2P network pool.
+
+A network requires one tracker to be setup and clients should type the ip and port information of the tracker in order to join a network. Details of how to start up each program are outlined below.
+
+## How to Start
+The program requires `pipenv` to be installed locally.  
+`pipenv -v`  
+`pipenv install`  
+If the above command does not work in your environment, you must install pipenv.  
 `pip install pipenv`  
-or for Mac  
-`brew install pipenv` 
 
-to start working in a virtual environment,  
-`pipenv shell`  
+Initiate with the command,  
+`python pitupipy/app.py`
 
-Formatting  
-`black [FILE_PATH]`
+Press keyboard up or down to choose the program (tracker or client) to start.
 
-tracker startup command:  
-`
-python tracker/tracker.py --port [Optional:Network_Capacity]
-`
-e.g.
-`
-python tracker/tracker.py 20
-`
+## Commands
 
-client startup command:  
-`
-python client/client.py --client_ip=[CLIENT_IP] --client_port=[CLIENT_PORT] --client_file_port=[CLIENT_FILE_PORT] --tracker_ip=[TRACKER_IP] --tracker_port=[TRACKER_PORT]
-`
-Optional Arguments  
---client_ip  
---client_port  
+`COMMAND? [/q or /help] >> /help`  
+![](./resources/commands.png)
